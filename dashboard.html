@@ -1,0 +1,23 @@
+<html>
+<head>
+    <title>cloudmock</title>
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400,900' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Sacramento' rel='stylesheet' type='text/css'>
+</head>
+<body>
+	<h1>Cloudmock</h1>
+	<h3>Dashboard</h3>
+	{% if websites %}
+		<ul>
+		{% for site in websites %}
+		{% for prop in site.siteProperties %}
+			{{prop}}
+		{% endfor %}
+			<li>Name: <a href="http://{{ site.hostNames[0] }}">{{site.name}}</a></li>
+			<li>Status: {{ site.state }}</li>
+		{% endfor %}
+		</ul>
+	{% endif %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+</body>
+</html>
