@@ -1,0 +1,73 @@
+/* --------------------------------------------------
+Container
+-------------------------------------------------- */
+.container { position: relative; width: 940px; margin: 0 auto; padding: 0; }
+ 
+/* --------------------------------------------------
+Grid
+-------------------------------------------------- */
+.row { margin: 0 0 20px 0px; }
+.column { float: left; margin: 0 20px 0 0; width: 100%; }
+.last-column {margin-right: 0;}
+
+.large-1 { width: 40px; }
+.large-2 { width: 100px; }
+.large-3 { width: 160px; }
+.large-4 { width: 220px; }
+.large-5 { width: 280px; }
+.large-6 { width: 340px; }
+.large-7 { width: 400px; }
+.large-8 { width: 460px; }
+.large-9 { width: 520px; }
+.large-10 { width: 580px; }
+.large-11 { width: 640px; }
+.large-12 { width: 700px; }
+.large-13 { width: 760px; }
+.large-14 { width: 820px; }
+.large-15 { width: 880px; }
+.large-16 { width: 940px; }
+ 
+.offset-by-one-half { margin-left: 30px; }
+.offset-by-one { margin-left: 60px; }
+.offset-by-two { margin-left: 120px; }
+.offset-by-three { margin-left: 180px; }
+.offset-by-four { margin-left: 240px; }
+.offset-by-five { margin-left: 300px; }
+.offset-by-six { margin-left: 360px; }
+.offset-by-seven { margin-left: 420px; }
+.offset-by-eight { margin-left: 480px; }
+.offset-by-nine { margin-left: 540px; }
+.offset-by-ten { margin-left: 600px; }
+.offset-by-eleven { margin-left: 660px; }
+.offset-by-twelve { margin-left: 720px; }
+.offset-by-thirteen { margin-left: 780px; }
+.offset-by-fourteen { margin-left: 840px; }
+ 
+/* Clear the columns */
+.row:after, .clearfix:after { content: "."; display: block; height: 0; clear: both; visibility: hidden; }
+* html .row, * html .clearfix { height: 1%; }
+.row, .clearfix { display: inline-block; }
+.row, .clearfix { display: block; }
+
+@media ( min-width : 768px ) {
+	.medium-1 { width: 29.25px; }
+	.medium-2 { width: 78.5px; }
+	.medium-3 { width: 107.75px; }
+	.medium-4 { width: 300px; }
+	.medium-5 { width: 380px; }
+	.medium-6 { width: 460px; }
+	.medium-7 { width: 540px; }
+	.medium-8 { width: 620px; }
+	.medium-9 { width: 700px; }
+	.medium-10 { width: 780px; }
+	.medium-11 { width: 860px; }
+	.medium-12 { width: 940px; }
+	.medium-13 { width: 1020px; }
+	.medium-14 { width: 1100px; }
+	.medium-15 { width: 1180px; }
+	.medium-16 { width: 1260px; }
+}
+
+.row-no {
+	margin-bottom: 0px;
+}

@@ -1,48 +1,41 @@
-var express = require('express')
-var app = express()
-var path 		= require('path');
-var bodyParser  = require('body-parser');
-var swig = require('swig');
-var fs = require('fs');
-var webSiteManagement = require('azure-mgmt-website');
+var express = require('express'),
+	app = express(),
+	path = require('path'),
+	bodyParser = require('body-parser'),
+	swig = require('swig'),
+	fs = require('fs'),
+	webSiteManagement = require('azure-mgmt-website');
 
 
 // azure sub id: 3baf7cce-0610-43bc-b384-5105b8e71ab2
-
-
 app.use(express.static(path.join(__dirname, '/public')));
 
 
-// This is where all the magic happens!
+// Template render magic.
 app.engine('html', swig.renderFile);
-
 app.set('view engine', 'html');
-app.set('views', __dirname + '/');
+app.set('views', __dirname + '/public/html');
 
 app.use(bodyParser.urlencoded({
-  extended: true
+	extended: true
 }));
 
 app.use(bodyParser.json());
-
-// Swig will cache templates for you, but you can disable
-// that and use Express's caching instead, if you like:
 app.set('view cache', false);
-// To disable Swig's cache, do the following:
+// Disables Swig's cache
 swig.setDefaults({ cache: false });
 // NOTE: You should always cache templates in a production environment.
 // Don't leave both of these to `false` in production!
 
-var hostName = '.azurewebsites.net';
-var webSpaceName = 'westuswebspace';
-var serverFarm = 'Default1';
-
-var webSiteManagementClient;
+var hostName = '.azurewebsites.net',
+	webSpaceName = 'westuswebspace',
+	serverFarm = 'Default1',
+	webSiteManagementClient;
 
 function AuthenticateServerUser(){
 	webSiteManagementClient = webSiteManagement.createWebSiteManagementClient(webSiteManagement.createCertificateCloudCredentials({
-	  subscriptionId: '3baf7cce-0610-43bc-b384-5105b8e71ab2',
-	  pem: fs.readFileSync(__dirname + '/' + '3baf7cce-0610-43bc-b384-5105b8e71ab2.pem')
+	  	subscriptionId: '3baf7cce-0610-43bc-b384-5105b8e71ab2',
+	  	pem: fs.readFileSync(__dirname + '/' + '3baf7cce-0610-43bc-b384-5105b8e71ab2.pem')
 	}));
 }
 
@@ -51,10 +44,6 @@ app.get('/', function (req, res) {
 })
 
 app.post('/auth', function(req,res){
-})
-
-app.get('/websites/create', function(req,res){
-	res.render('website');
 })
 
 app.post('/websites/create', function(req,res){
@@ -75,33 +64,29 @@ app.post('/websites/create', function(req,res){
 	// });
 })
 
-app.get('/dashboard', function(req,res){
+app.get('/home', function(req,res){
 	webSiteManagementClient.webSpaces.list(function (err, result) {
-    if (err) {
-	    console.error(err);
-	  } else {
-	    console.info(result.webSpaces[0].name);
-	    var webSpaceName = result.webSpaces[0].name;
-	    webSiteManagementClient.webSpaces.listWebSites(webSpaceName,function(err,results){
+	    if (err) {
+		    console.error(err);
+		} else {
+		    var webSpaceName = result.webSpaces[0].name;
+
+		    webSiteManagementClient.webSpaces.listWebSites(webSpaceName,function(err,results){
 				if(err){
 					console.log(err);
 				} else {
 					console.log(results.webSites[0].uri);
 
-					res.render('dashboard', {websites: results.webSites});
+					res.render('home', {websites: results.webSites});
 				}
-	    })
-	  }
+		    })
+		}
 	});
 })
 
 var server = app.listen(3000, function () {
-
-  var host = server.address().address
-  var port = server.address().port
+	var host = server.address().address,
+  		port = server.address().port;
 
   AuthenticateServerUser();
-
-  console.log('Example app listening at http://%s:%s', host, port)
-
 })

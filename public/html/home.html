@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<div id="explorer">
+		<h1>Cloud OS</h1>
+		<div id="nav-bar" class="row">
+			<div id="breadcrumb" class="column large-10">
+				Ben Z > Personal > InspectJoy > Websites
+			</div>
+			<div class="column large-6 last-column">
+				<input>
+			</div>
+		</div>
+		<div id="action-bar" class="row">
+			<div class="column large-3">
+				<div id="add-button">
+					<span>Add website</span>
+				</div>
+			</div>
+		</div>
+		<form id="create-website-form" action="/websites/create" method="POST">
+			<label>Website Name</label>
+			<input type='text' required name='websiteName' id='websiteName' class="form-input" placeholder='Website Name'>
+			<button id="create-website-button" type="submit" class="btn-primary btn-large disabled">
+				Create Website
+			</button>
+		</form>
+		{% if websites %}
+			<div id="browse" class="row">
+				<ol id="browse-list">
+				{% for site in websites %}
+					{% for prop in site.siteProperties %}
+						{{prop}}
+					{% endfor %}
+					<li>Name: <a href="http://{{ site.hostNames[0] }}">{{site.name}}</a></li>
+					<li>Status: {{ site.state }}</li>
+				{% endfor %}
+				</ol>
+			</div>
+		{% endif %}
+	</div>
+{% endblock %}
