@@ -1,11 +1,32 @@
 (function ($) {
     "use strict";
 
-    var makeFolder = function(value){
+    var folderType = {
+        organization: 0,
+        app: 1,
+        website: 2,
+        database: 3
+    }
+
+    var makeFolder = function(name, type){
         var newFolder = {};
 
         _.extend(newFolder, folderMethods);
-        newFolder.value = value;
+        newFolder.name = name;
+        newFolder.type = type;
+
+        switch(type) {
+            case folderType.organization:
+                newFolder.url = "/organization"
+                break;
+            case folderType.app:
+                newFolder.url = "/app"
+                break;
+            case folderType.website:
+                newFolder.url = "/website"
+                break;
+        }
+
         newFolder.children = [];
 
         return newFolder;
@@ -13,26 +34,26 @@
 
     var folderMethods = {};
 
-    folderMethods.addChild = function(value){
-        this.children.push(makeFolder(value));
+    folderMethods.addChild = function(name, type){
+        this.children.push(makeFolder(name, type));
     };
 
     folderMethods.contains = function(target){
         var result = false;
-        var hasValue = function(target, node) {
+        var hasName = function(target, node) {
             var children = node.children;
 
             for(var i = 0; i < children.length; i++) {
-                if(children[i].value === target) {
+                if(children[i].name === target) {
                     result = true;
                 }
 
                 if(children[i].children.length) {
-                    hasValue(target, children[i]);
+                    hasName(target, children[i]);
                 }
             }
         }
-        hasValue(target, this);
+        hasName(target, this);
 
         return result;
     };
@@ -44,7 +65,7 @@
             websiteName = form.find("#website-name").val(),
             url = form.attr("action");
      
-        var postPromise = $.post( url, { s: website-name } );
+        var postPromise = $.post( url, { websiteName: websiteName } );
 
         postPromise.done(function(data) {
             console.log(data);

@@ -46,7 +46,7 @@ app.get('/', function (req, res) {
 app.post('/auth', function(req,res){
 })
 
-app.post('/websites/create', function(req,res){
+app.post('/websites/create', function(req, res){
 	res.send(req.body.websiteName + ' created');
 	var webSiteName = req.body.websiteName;
 
