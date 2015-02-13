@@ -2,10 +2,10 @@
     "use strict";
 
     var folderType = {
-        organization: 0,
-        app: 1,
-        website: 2,
-        database: 3
+        website: 0,
+        database: 1,
+        analytics: 2,
+        code: 3
     }
 
     var makeFolder = function(name, type){
@@ -16,14 +16,14 @@
         newFolder.type = type;
 
         switch(type) {
-            case folderType.organization:
-                newFolder.url = "/organization"
-                break;
-            case folderType.app:
-                newFolder.url = "/app"
-                break;
             case folderType.website:
                 newFolder.url = "/website"
+                break;
+            case folderType.app:
+                newFolder.url = "/database"
+                break;
+            case folderType.analytics:
+                newFolder.url = "/analytics"
                 break;
         }
 
@@ -69,12 +69,18 @@
 
         postPromise.done(function(data) {
             $("#browse-list").prepend("<li>hi</li>")
-            console.log(data);
         });
+    });
+
+    $(".browse-folder").on("click", function() {
+        // check type to know where to get children from.
+        // if it is a website for instance it will have 4 children
+        // analytics, code, dbs, users
+        // if it is a code folder it will need to get its code.
     });
 
     $("#add-button").on("click", function() {
         $("#create-folder").show();
-    })
+    });
 
 }(window.jQuery))
