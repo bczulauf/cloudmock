@@ -2,13 +2,18 @@
 
 {% block content %}
 	<div id="explorer">
-		<h1>Cloud OS</h1>
+		<div class="row">
+			<div id="logo"></div>
+			<span>Cloud OS</span>
+		</div>
 		<div id="nav-bar" class="row">
-			<div id="breadcrumb" class="column large-10">
-				Ben Z > Personal > InspectJoy > Websites
+			<div class="column large-10">
+				<div id="breadcrumb">
+					Ben Z > Personal > InspectJoy > Websites
+				</div>
 			</div>
 			<div class="column large-6 last-column">
-				<input>
+				<input id="search">
 			</div>
 		</div>
 		<div id="action-bar" class="row">
@@ -20,7 +25,7 @@
 		</div>
 		<form id="create-website-form" action="/websites/create" method="POST">
 			<label>Website Name</label>
-			<input type='text' required name='websiteName' id='websiteName' class="form-input" placeholder='Website Name'>
+			<input type='text' required name='websiteName' id='website-name' class="form-input" placeholder='Website Name'>
 			<button id="create-website-button" type="submit" class="btn-primary btn-large disabled">
 				Create Website
 			</button>
@@ -32,8 +37,17 @@
 					{% for prop in site.siteProperties %}
 						{{prop}}
 					{% endfor %}
-					<li>Name: <a href="http://{{ site.hostNames[0] }}">{{site.name}}</a></li>
-					<li>Status: {{ site.state }}</li>
+					<li class="browse-item clearfix">
+						<div class="column large-8">
+							{{site.name}}
+						</div>
+						<div class="column large-4">
+							{{site.state}}
+						</div>
+						<div class="column large-4 last-column">
+							<a href="http://{{ site.hostNames[0] }}">visit</a>
+						</div>
+					</li>
 				{% endfor %}
 				</ol>
 			</div>

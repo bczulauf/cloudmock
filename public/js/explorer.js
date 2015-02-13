@@ -37,6 +37,20 @@
         return result;
     };
 
+    $("#create-website-form").submit(function(event) {
+        event.preventDefault();
+
+        var form = $(this),
+            websiteName = form.find("#website-name").val(),
+            url = form.attr("action");
+     
+        var postPromise = $.post( url, { s: website-name } );
+
+        postPromise.done(function(data) {
+            console.log(data);
+        });
+    });
+
     $("#add-button").on("click", function() {
         var button = $(this);
 

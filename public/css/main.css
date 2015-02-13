@@ -5,8 +5,29 @@ body {
 	font-family: "Roboto", sans-serif;
 }
 
+ol {
+    padding: 0;
+    list-style-type: none;
+}
+
 li {
 	line-height: 40px;
+}
+
+li.browse-item {
+	list-style: none;
+}
+
+li.browse-item div {
+	float: left;
+}
+
+#logo {
+	float: left;
+	height: 40px;
+	width: 40px;
+	margin-right: 12px;
+	background: #ccc;
 }
 
 #explorer {
@@ -16,6 +37,16 @@ li {
 #nav-bar {
 	line-height: 40px;
 	background: #eee;
+}
+
+#search {
+	width: 320px;
+	margin-top: 5px;
+	height: 30px;
+}
+
+#breadcrumb {
+	padding-left: 20px;
 }
 
 #action-bar {
