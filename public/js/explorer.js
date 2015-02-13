@@ -1,11 +1,13 @@
 (function ($) {
+    
     "use strict";
 
     var folderType = {
-        website: 0,
-        database: 1,
-        analytics: 2,
-        code: 3
+        explorer: 0,
+        website: 1,
+        database: 2,
+        analytics: 3,
+        code: 4
     }
 
     var makeFolder = function(name, type){
@@ -34,11 +36,23 @@
 
     var folderMethods = {};
 
-    folderMethods.addChild = function(name, type){
+    folderMethods.appendChild = function(name) {
+        var browseList = $("#browse-list"),
+            template = 
+                "<li class='browse-folder' data='"+ name +"'>" +
+                    "<div class='column large-8'>" +
+                        name
+                    "</div>" +
+                "</li>";
+        
+        browseList.append(template);
+    };
+
+    folderMethods.addChild = function(name, type) {
         this.children.push(makeFolder(name, type));
     };
 
-    folderMethods.contains = function(target){
+    folderMethods.contains = function(target) {
         var result = false;
         var hasName = function(target, node) {
             var children = node.children;
@@ -72,15 +86,31 @@
         });
     });
 
-    $(".browse-folder").on("click", function() {
+    $("#browse").on("click", ".browse-folder", function() {
         // check type to know where to get children from.
         // if it is a website for instance it will have 4 children
         // analytics, code, dbs, users
         // if it is a code folder it will need to get its code.
+        var folder = $(this);
+
+        console.log(folder.data());
     });
 
     $("#add-button").on("click", function() {
         $("#create-folder").show();
+    });
+
+    // Initializes a new explorer.
+    var explorer = makeFolder("explorer", folderType.explorer);
+
+    // Gets me all the websites that I am a member of.
+    $.get("/websites", function(data) {
+        var websites = data.websites;
+
+        _.each(websites, function(website) {
+            explorer.addChild(website.name, folderType.website);
+            explorer.appendChild(website.name);
+        });
     });
 
 }(window.jQuery))

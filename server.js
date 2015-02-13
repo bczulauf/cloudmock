@@ -64,7 +64,25 @@ app.post('/websites/create', function(req, res){
 	// });
 })
 
-app.get('/home', function(req,res){
+app.get('/websites', function(req, res){
+	webSiteManagementClient.webSpaces.list(function (err, result) {
+	    if (err) {
+		    console.error(err);
+		} else {
+		    var webSpaceName = result.webSpaces[0].name;
+
+		    webSiteManagementClient.webSpaces.listWebSites(webSpaceName,function(err,results){
+				if(err){
+					console.log(err);
+				} else {
+					res.send({websites: results.webSites});
+				}
+		    })
+		}
+	});
+})
+
+app.get('/home', function(req, res){
 	webSiteManagementClient.webSpaces.list(function (err, result) {
 	    if (err) {
 		    console.error(err);

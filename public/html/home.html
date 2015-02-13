@@ -24,6 +24,17 @@
 		</div>
 	</div>
 	{% if websites %}
+	<div id="browse-header" class="row row-no">
+		<div class="column large-8">
+			Name
+		</div>
+		<div class="column large-2">
+			Status
+		</div>
+		<div class="column large-6 last-column">
+			Url
+		</div>
+	</div>
 	<div id="browse" class="row">
 		<ol id="browse-list">
 			<li id="create-folder">
@@ -38,17 +49,17 @@
 			<!-- {% for prop in site.siteProperties %}
 				{{prop}}
 			{% endfor %} -->
-			<li class="browse-folder clearfix">
+			<!-- <li class="browse-folder clearfix">
 				<div class="column large-8">
 					{{site.name}}
 				</div>
-				<div class="column large-4">
+				<div class="column large-2">
 					{{site.state}}
 				</div>
-				<div class="column large-4 last-column">
-					<a href="http://{{ site.hostNames[0] }}">visit</a>
+				<div class="column large-6 last-column">
+					<a href="http://{{ site.hostNames[0] }}">{{site.hostNames[0]}}</a>
 				</div>
-			</li>
+			</li> -->
 			{% endfor %}
 		</ol>
 	</div>
