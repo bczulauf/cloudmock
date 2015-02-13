@@ -34,6 +34,10 @@ li.browse-item div {
 	margin-top: 20px;
 }
 
+#header {
+	line-height: 40px;
+}
+
 #nav-bar {
 	line-height: 40px;
 	background: #eee;
@@ -62,6 +66,7 @@ img.icon {
 	margin: 0 12px;
 }
 
-#add-button {
-	border: 1px solid #ddd;
+#create-folder {
+	display: none;
+	background: #f8f8f8;
 }

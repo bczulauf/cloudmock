@@ -1,56 +1,57 @@
 {% extends 'base.html' %}
 
 {% block content %}
-	<div id="explorer">
-		<div class="row">
-			<div id="logo"></div>
-			<span>Cloud OS</span>
-		</div>
-		<div id="nav-bar" class="row">
-			<div class="column large-10">
-				<div id="breadcrumb">
-					Ben Z > Personal > InspectJoy > Websites
-				</div>
-			</div>
-			<div class="column large-6 last-column">
-				<input id="search">
-			</div>
-		</div>
-		<div id="action-bar" class="row">
-			<div class="column large-3">
-				<div id="add-button">
-					<span>Add website</span>
-				</div>
-			</div>
-		</div>
-		<form id="create-website-form" action="/websites/create" method="POST">
-			<label>Website Name</label>
-			<input type='text' required name='websiteName' id='website-name' class="form-input" placeholder='Website Name'>
-			<button id="create-website-button" type="submit" class="btn-primary btn-large disabled">
-				Create Website
-			</button>
-		</form>
-		{% if websites %}
-			<div id="browse" class="row">
-				<ol id="browse-list">
-				{% for site in websites %}
-					{% for prop in site.siteProperties %}
-						{{prop}}
-					{% endfor %}
-					<li class="browse-item clearfix">
-						<div class="column large-8">
-							{{site.name}}
-						</div>
-						<div class="column large-4">
-							{{site.state}}
-						</div>
-						<div class="column large-4 last-column">
-							<a href="http://{{ site.hostNames[0] }}">visit</a>
-						</div>
-					</li>
-				{% endfor %}
-				</ol>
-			</div>
-		{% endif %}
+<div id="explorer">
+	<div id="header" class="row">
+		<div id="logo"></div>
+		<span>Cloud OS</span>
 	</div>
+	<div id="nav-bar" class="row">
+		<div class="column large-10">
+			<div id="breadcrumb">
+				Ben Z > Personal > InspectJoy > Websites
+			</div>
+		</div>
+		<div class="column large-6 last-column">
+			<input id="search">
+		</div>
+	</div>
+	<div id="action-bar" class="row">
+		<div class="column large-2">
+			<button id="add-button">
+				Add website
+			</button>
+		</div>
+	</div>
+	{% if websites %}
+	<div id="browse" class="row">
+		<ol id="browse-list">
+			<li id="create-folder">
+				<form id="create-website-form" action="/websites/create" method="POST">
+					<input type='text' required name='websiteName' id='website-name' class="form-input" placeholder='Website Name'>
+					<button id="create-website-button" type="submit" class="btn-primary btn-large disabled">
+						Create Website
+					</button>
+				</form>
+			</li>
+			{% for site in websites %}
+			<!-- {% for prop in site.siteProperties %}
+				{{prop}}
+			{% endfor %} -->
+			<li class="browse-item clearfix">
+				<div class="column large-8">
+					{{site.name}}
+				</div>
+				<div class="column large-4">
+					{{site.state}}
+				</div>
+				<div class="column large-4 last-column">
+					<a href="http://{{ site.hostNames[0] }}">visit</a>
+				</div>
+			</li>
+			{% endfor %}
+		</ol>
+	</div>
+	{% endif %}
+</div>
 {% endblock %}

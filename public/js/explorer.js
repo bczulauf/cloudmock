@@ -68,14 +68,13 @@
         var postPromise = $.post( url, { websiteName: websiteName } );
 
         postPromise.done(function(data) {
+            $("#browse-list").prepend("<li>hi</li>")
             console.log(data);
         });
     });
 
     $("#add-button").on("click", function() {
-        var button = $(this);
-
-        $("#browse-list").prepend("<li>hi</li>")
+        $("#create-folder").show();
     })
 
 }(window.jQuery))
