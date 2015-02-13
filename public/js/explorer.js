@@ -38,12 +38,11 @@
 
     folderMethods.appendChild = function(name) {
         var browseList = $("#browse-list"),
-            template = 
-                "<li class='browse-folder' data='"+ name +"'>" +
-                    "<div class='column large-8'>" +
-                        name
-                    "</div>" +
-                "</li>";
+            template = $("<li class='browse-folder'><div class='column large-8'></div></li>"),
+            folder = template.find(".browse-folder");
+
+        $.data(folder, {name: name});
+        template.find(".column").text(name);
         
         browseList.append(template);
     };
