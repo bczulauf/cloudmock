@@ -3,47 +3,61 @@
 {% block content %}
 <div id="explorer">
 	<div id="header" class="row">
-		<div id="logo"></div>
-		<span>Cloud OS</span>
+		Cloud OS
 	</div>
 	<div id="nav-bar" class="row">
-		<div class="column large-10">
+		<div class="column large-12">
 			<div id="breadcrumb">
-				Websites
+				Home
 			</div>
 		</div>
-		<div class="column large-6 last-column">
-			<input id="search">
+		<div class="column large-4 last-column">
+			<input id="search" placeholder="Search">
 		</div>
 	</div>
 	<div id="action-bar" class="row">
-		<div class="column large-2">
-			<button id="add-button">
-				Add website
-			</button>
-		</div>
+		<button id="add-app" class="add-button">
+			Add app
+		</button>
+		<button id="add-resource" class="add-button">
+			Add resource
+		</button>
 	</div>
 	{% if websites %}
 	<div id="browse-header" class="row row-no">
-		<div class="column large-8">
+		<div class="column large-5">
 			Name
+		</div>
+		<div class="column large-2">
+			Type
 		</div>
 		<div class="column large-2">
 			Status
 		</div>
-		<div class="column large-6 last-column">
-			Url
+		<div class="column large-3">
+			Location
+		</div>
+		<div class="column large-4 last-column">
+			Owner
 		</div>
 	</div>
 	<div id="browse" class="row">
 		<ol id="browse-list">
 			<li id="create-folder">
-				<form id="create-website-form" action="/websites/create" method="POST">
-					<input type='text' required name='websiteName' id='website-name' class="form-input" placeholder='Website Name'>
-					<button id="create-website-button" type="submit" class="btn-primary btn-large disabled">
-						Create Website
-					</button>
-				</form>
+				<div class="column large-6">
+					<form id="create-website-form" action="/websites/create" method="POST">
+						<input type='text' required name='websiteName' id='folder-name' class="form-input" placeholder='Website Name'>
+					</form>
+				</div>
+				<div class="column large-3">
+					App
+				</div>
+				<div class="column large-2">
+					--
+				</div>
+				<div class="column large-5 last-column">
+					Ben Zulauf
+				</div>
 			</li>
 			{% for site in websites %}
 			<!-- {% for prop in site.siteProperties %}

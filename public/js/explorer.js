@@ -95,7 +95,7 @@
         console.log(folder.data());
     });
 
-    $("#add-button").on("click", function() {
+    $("#add-app").on("click", function() {
         $("#create-folder").show();
     });
 
