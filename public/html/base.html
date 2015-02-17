@@ -7,12 +7,30 @@
     {% block head %}{% endblock %}
 </head>
 <body>
-<div class="container">
-    {% block content %}{% endblock %}
+<header>
+	<div class="container clearfix">
+		<div id="breadcrumb" class="column large-8">
+			Cloud OS
+		</div>
+		<div class="column large-5">
+			&nbsp;
+		</div>
+		<div id="account" class="column large-3 last-column">
+			bezulauf
+		</div>
+	</div>
+</header>
+{% block content %}{% endblock %}
+<div id="popup">
+	<div class="popup-container">
+		hello
+	</div>
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js"></script>
+<script type="text/javascript" src="../js/folder.js"></script>
 <script type="text/javascript" src="../js/explorer.js"></script>
+<script type="text/javascript" src="../js/popup.js"></script>
 {% block scripts %}{% endblock %}
 </body>
 </html>

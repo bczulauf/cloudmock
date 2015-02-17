@@ -5,6 +5,11 @@ body {
 	font-family: "Roboto", sans-serif;
 }
 
+header {
+	background: red;
+	line-height: 40px;
+}
+
 button {
 	font-family: "Roboto", sans-serif;
 }
@@ -31,20 +36,16 @@ li.browse-item div {
 	float: left;
 }
 
-#explorer {
-	margin-top: 20px;
-}
-
-#nav-bar {
-	line-height: 40px;
-	background: #eee;
+#account {
+	background: purple;
 }
 
 input#search {
-	width: 212px;
-	margin-top: 8px;
-	height: 24px;
-	width: 212px;
+	margin: 10px 0px;
+	height: 36px;
+	width: 100%;
+	border: none;
+	padding: 0;
 }
 
 input#folder-name {
@@ -54,13 +55,9 @@ input#folder-name {
 	margin-left: 8px;
 }
 
-#breadcrumb {
-	padding-left: 8px;
-}
-
 #action-bar {
-	font-size: 12px;
-	line-height: 32px;
+	line-height: 56px;
+	background-color: pink;
 }
 
 img.icon {
@@ -84,21 +81,21 @@ img.icon {
 
 button.add-button {
 	border: none;
-	background: none;
-	border: 1px solid #ccc;
-	padding: 10px 10px 10px 30px;
+	background-color: yellow;
+	height: 36px;
+	width: 120px;
+	margin: 10px 5px 10px 0px;
 	float: left;
-	margin-right: 10px;
 }
 
-button#add-app {
-	background-image: url("../img/folder_add.png");
-	background-position: left 10px center;
-	background-repeat: no-repeat;
-}
-
-button#add-resource {
-	background-image: url("../img/page_add.png");
-	background-position: left 10px center;
-	background-repeat: no-repeat;
+#popup {
+	position: fixed;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	background: rgba(0,0,0,.5);
+	align-items: center;
+    justify-content: center;
+    display: none;
 }

@@ -1,29 +1,23 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div id="explorer">
-	<div id="header" class="row">
-		Cloud OS
-	</div>
-	<div id="nav-bar" class="row">
-		<div class="column large-12">
-			<div id="breadcrumb">
-				Home
-			</div>
+<div id="action-bar" class="row">
+	<div class="container">
+		<div class="column large-10">
+			<button id="add-app" class="add-button">
+				Add app
+			</button>
+			<button id="add-resource" class="add-button">
+				Add resource
+			</button>
 		</div>
-		<div class="column large-4 last-column">
+		<div class="column large-6 last-column">
 			<input id="search" placeholder="Search">
 		</div>
 	</div>
-	<div id="action-bar" class="row">
-		<button id="add-app" class="add-button">
-			Add app
-		</button>
-		<button id="add-resource" class="add-button">
-			Add resource
-		</button>
-	</div>
-	{% if websites %}
+</div>
+{% if websites %}
+<div class="container">
 	<div id="browse-header" class="row row-no">
 		<div class="column large-5">
 			Name
@@ -77,6 +71,6 @@
 			{% endfor %}
 		</ol>
 	</div>
-	{% endif %}
 </div>
+{% endif %}
 {% endblock %}
