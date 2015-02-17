@@ -22,8 +22,20 @@
 </header>
 {% block content %}{% endblock %}
 <div id="popup">
-	<div class="popup-container">
-		hello
+	<div id="popup-container">
+		<div id="resource-header" class="browse-header row row-no">
+			<div class="column large-4">
+				Name
+			</div>
+			<div class="column large-2">
+				Type
+			</div>
+			<div class="column large-4 last-column">
+				Author
+			</div>
+		</div>
+		<ol id="resource-list">
+		</ol>
 	</div>
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>

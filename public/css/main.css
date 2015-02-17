@@ -74,7 +74,7 @@ img.icon {
 	height: 40px;
 }
 
-#browse-header {
+.browse-header {
 	border-bottom: 1px solid #ccc;
 	padding-bottom: 4px;
 }
@@ -98,4 +98,21 @@ button.add-button {
 	align-items: center;
     justify-content: center;
     display: none;
+}
+
+#popup-container {
+	background-color: #fff;
+	padding: 20px;
+}
+
+#login {
+	height: 100%;
+	align-items: center;
+    justify-content: center;
+    display: flex;
+}
+
+#login-form {
+    background-color: pink;
+    padding: 20px;
 }
