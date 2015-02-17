@@ -5,19 +5,59 @@ body {
 	font-family: "Roboto", sans-serif;
 }
 
-header {
-	background: red;
-	line-height: 40px;
-}
-
+/* Buttons */
 button {
 	font-family: "Roboto", sans-serif;
+	border: none;
 }
 
+button.add-button {
+	width: 120px;
+	margin: 10px 5px 10px 0px;
+	float: left;
+}
+
+button.btn-lg {
+	height: 36px;
+}
+
+button.btn-primary {
+	background-color: yellow;
+}
+
+/* Inputs */
 input {
 	text-indent: 5px;
+	border: none;
 }
 
+input.inpt-full {
+	width: 100%;
+}
+
+input.inpt-lg {
+	height: 36px;
+}
+
+input.inpt-form {
+	margin-bottom: 5px;
+}
+
+input#search {
+	margin: 10px 0px;
+	height: 36px;
+	width: 100%;
+	padding: 0;
+}
+
+input#folder-name {
+	margin-top: 8px;
+	height: 24px;
+	width: 304px;
+	margin-left: 8px;
+}
+
+/* Lists */
 ol {
 	margin: 0;
     padding: 0;
@@ -40,24 +80,15 @@ li.browse-item div {
 	background: purple;
 }
 
-input#search {
-	margin: 10px 0px;
-	height: 36px;
-	width: 100%;
-	border: none;
-	padding: 0;
-}
-
-input#folder-name {
-	margin-top: 8px;
-	height: 24px;
-	width: 304px;
-	margin-left: 8px;
-}
-
 #action-bar {
 	line-height: 56px;
 	background-color: pink;
+}
+
+.header {
+	background: red;
+	line-height: 40px;
+	width: 100%;
 }
 
 img.icon {
@@ -77,15 +108,6 @@ img.icon {
 .browse-header {
 	border-bottom: 1px solid #ccc;
 	padding-bottom: 4px;
-}
-
-button.add-button {
-	border: none;
-	background-color: yellow;
-	height: 36px;
-	width: 120px;
-	margin: 10px 5px 10px 0px;
-	float: left;
 }
 
 #popup {
@@ -115,4 +137,5 @@ button.add-button {
 #login-form {
     background-color: pink;
     padding: 20px;
+    width: 220px;
 }
