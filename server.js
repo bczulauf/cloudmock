@@ -6,9 +6,18 @@ var express = require('express'),
 	fs = require('fs'),
 	http = require('http'),
 	https = require('https'),
-	webSiteManagement = require('azure-mgmt-website'),
-	management = require('azure-mgmt');
+	webSiteManagement = require('azure-mgmt-website');
 
+var cookieParser = require('cookie-parser');
+var session = require('cookie-session');
+var crypto = require('crypto');
+var common = require("azure-common"),
+    resourceManagement = require("azure-mgmt-resource");
+var AuthenticationContext = require('adal-node').AuthenticationContext;
+var xml = require('xml2js');
+var util = require('util');
+
+app.use(cookieParser('a deep secret'));
 // azure sub id: 3baf7cce-0610-43bc-b384-5105b8e71ab2
 app.use(express.static(path.join(__dirname, '/public')));
 
@@ -35,26 +44,117 @@ var hostName = '.azurewebsites.net',
 	webSiteManagementClient,
 	managementClient;
 
-function AuthenticateServerUser(){
-	var managementCreds = management.createCertificateCloudCredentials({
-	  subscriptionId: '3baf7cce-0610-43bc-b384-5105b8e71ab2',
-	  pem: fs.readFileSync(__dirname + '/' + '3baf7cce-0610-43bc-b384-5105b8e71ab2.pem')
-	});
+var sampleParameters = {
+  tenant : '3f6c9704-10d4-4108-aac1-d5a26ac5f799', // can get this with users login response
+  authorityHostUrl : 'https://login.windows.net',
+  clientId : '8f6b2a6c-fba5-43e9-a0b2-1639553c571c',
+  clientSecret: 'zuiVAwjZs7kREke2diuWMKHJoGWH6HMIjbDSkn0ojXk=',
+  //username : 'rnchell@jimmywoods1outlook.onmicrosoft.com',
+  username: 'jimmywoods1@outlook.com',
+  //password : 'thewizard1!'
+  password: 'thewizard!'
+};
 
-	webSiteManagementClient = webSiteManagement.createWebSiteManagementClient(webSiteManagement.createCertificateCloudCredentials({
-	  	subscriptionId: '3baf7cce-0610-43bc-b384-5105b8e71ab2',
-	  	pem: fs.readFileSync(__dirname + '/' + '3baf7cce-0610-43bc-b384-5105b8e71ab2.pem')
-	}));
+var resourceManagementClient;
 
-	managementClient = management.createManagementClient(managementCreds);
+var authorityUrl = sampleParameters.authorityHostUrl + '/' + sampleParameters.tenant;
+var redirectUri = 'http://localhost:3000/getAToken';
+var resource = 'https://management.azure.com/'; // needed for resource management api calls
+//var resource = 'https://management.core.windows.net/'; // needed for service management api calls
+
+var templateAuthzUrl = 'https://login.windows.net/' + sampleParameters.tenant + '/oauth2/authorize?response_type=code&client_id=<client_id>&redirect_uri=<redirect_uri>&state=<state>&resource=<resource>';
+var token = '';
+
+app.get('/', function(req, res) {
+  res.redirect('login');
+});
+
+app.get('/login', function(req, res) {
+  console.log(req.cookies);
+
+  res.cookie('acookie', 'this is a cookie');
+
+  res.send('\
+<head>\
+  <title>FooBar</title>\
+</head>\
+<body>\
+  <a href="./auth">Login</a>\
+</body>\
+    ');
+});
+
+
+function createAuthorizationUrl(state) {
+  var authorizationUrl = templateAuthzUrl.replace('<client_id>', sampleParameters.clientId);
+  authorizationUrl = authorizationUrl.replace('<redirect_uri>',redirectUri);
+  authorizationUrl = authorizationUrl.replace('<state>', state);
+  authorizationUrl = authorizationUrl.replace('<resource>', resource);
+  return authorizationUrl;
 }
 
-app.get('/', function (req, res) {
-	res.render('index')
-})
+// Clients get redirected here in order to create an OAuth authorize url and redirect them to AAD.
+// There they will authenticate and give their consent to allow this app access to
+// some resource they own.
+app.get('/auth', function(req, res) {
+  crypto.randomBytes(48, function(ex, buf) {
+    var token = buf.toString('base64').replace(/\//g,'_').replace(/\+/g,'-');
 
-app.post('/auth', function(req,res){
-})
+    res.cookie('authstate', token);
+    var authorizationUrl = createAuthorizationUrl(token);
+
+    console.log(authorizationUrl);
+
+    res.redirect(authorizationUrl);
+  });
+});
+
+// After consent is granted AAD redirects here.  The ADAL library is invoked via the
+// AuthenticationContext and retrieves an access token that can be used to access the
+// user owned resource.
+app.get('/getAToken', function(req, res) {
+  if (req.cookies.authstate !== req.query.state) {
+    res.send('error: state does not match');
+  }
+  var authenticationContext = new AuthenticationContext(authorityUrl);
+  authenticationContext.acquireTokenWithAuthorizationCode(req.query.code, redirectUri, resource, sampleParameters.clientId, sampleParameters.clientSecret, function(err, response) {
+    var message = '';
+    if (err) {
+      message = 'error: ' + err.message + '\n';
+    }
+    message += 'response: ' + JSON.stringify(response);
+
+    if (err) {
+      res.send(message);
+      return;
+    }
+
+    console.log("******RESPONSE*******");
+    console.log(response);
+    token = response.accessToken;
+    //res.send(response);
+    //res.redirect('http://portal.azure.com'); 
+    //listAllSubscriptions();
+    //getResourcesByResourceGroupID();
+    //listAllTenants();
+
+    // Later, if the access token is expired it can be refreshed.
+    authenticationContext.acquireTokenWithRefreshToken(response.refreshToken, sampleParameters.clientId, sampleParameters.clientSecret, resource, function(refreshErr, refreshResponse) {
+      if (refreshErr) {
+        message += 'refreshError: ' + refreshErr.message + '\n';
+      }
+      message += 'refreshResponse: ' + JSON.stringify(refreshResponse);
+
+      console.log("******REFRESH RESPONSE*******");
+      console.log(refreshResponse);
+
+      //res.redirect('http://portal.azure.com'); 
+      //getResources();
+      //getResourceGroups();
+      res.redirect('/home');
+    }); 
+  });
+});
 
 app.post('/websites/create', function(req, res){
 	res.send(req.body.websiteName + ' created');
@@ -75,121 +175,28 @@ app.post('/websites/create', function(req, res){
 })
 
 app.get('/websites', function(req, res){
-	webSiteManagementClient.webSpaces.list(function (err, result) {
-	    if (err) {
-		    console.error(err);
-		} else {
-		    var webSpaceName = result.webSpaces[0].name;
-
-		    webSiteManagementClient.webSpaces.listWebSites(webSpaceName,function(err,results){
-				if(err){
-					console.log(err);
-				} else {
-					res.send({websites: results.webSites});
-				}
-		    })
-		}
-	});
 })
 
 app.get('/home', function(req, res){
-	webSiteManagementClient.webSpaces.list(function (err, result) {
-	    if (err) {
-		    console.error(err);
-		} else {
-		   var webSpaceName = result.webSpaces[0].name;
-
-	    webSiteManagementClient.webSpaces.listWebSites(webSpaceName,function(err,results){
-				if(err){
-					console.log(err);
-				} else {
-					console.log(results.webSites[0].uri);
-
-					res.render('home', {websites: results.webSites});
-				}
-		   });
-			}
-	});
-
-	console.log(managementClient.baseUri);
-	managementClient.listSubscriptions(function(err,result){
-		console.log(err);
-	});
+	res.render('home');
 });
-//https://management.azure.com/subscriptions/{subscription-id}/resourcegroups?api-version={api-version}&$top={top}$skiptoken={skiptoken}&$filter={filter}
-function testMethods(){
-	var options = {
-	  host: 'management.core.windows.net',
-	  port: 443,
-	  headers: {'x-ms-version':'2014-05-01'},
-	  path: '/3baf7cce-0610-43bc-b384-5105b8e71ab2/affinitygroups',
-	  method: 'GET'
-	};
 
-
-	var req = https.request(options, function(res) {
-	  console.log(res.statusCode);
-	  res.setEncoding('utf8');
-
-	  res.on('data', function(d) {
-	    console.log(d);
-	  });
-	});
-	req.end();
-
-	req.on('error', function(e) {
-	  console.error(e);
-	});
-	// webSiteManagementClient.webSpaces.list(function (err, result) {
-	//     if (err) {
-	// 	    console.error(err);
-	// 	} else {
-	//     var webSpaceName = result.webSpaces[0].name;
-
-	//     webSiteManagementClient.webSpaces.listWebSites(webSpaceName,function(err,results){
-	// 			if(err){
-	// 				console.log(err);
-	// 			} else {
-	// 				console.log(results.webSites[0].uri);
-
-	// 				res.render('home', {websites: results.webSites});
-	// 			}
-	//     })
-	// 	}
-	// });
-
-	console.log(managementClient.baseUri);
-	testMethods();
-})
-//https://management.azure.com/subscriptions/{subscription-id}/resourcegroups?api-version={api-version}&$top={top}$skiptoken={skiptoken}&$filter={filter}
-function testMethods(){
-	var options = {
-	  host: 'management.core.windows.net',
-	  port: 443,
-	  headers: {'x-ms-version':'2014-05-01'},
-	  path: '/3baf7cce-0610-43bc-b384-5105b8e71ab2/affinitygroups',
-	  method: 'GET'
-	};
-
-
-	var req = https.request(options, function(res) {
-	  console.log(res.statusCode);
-	  res.setEncoding('utf8');
-
-	  res.on('data', function(d) {
-	    console.log(d);
-	  });
-	});
-	req.end();
-
-	req.on('error', function(e) {
-	  console.error(e);
-	});
-}
+app.get('/getAllResourcesBySubscription', function(req,res){
+	resourceManagementClient = resourceManagement.createResourceManagementClient(new common.TokenCloudCredentials({
+    subscriptionId: "3baf7cce-0610-43bc-b384-5105b8e71ab2",
+    token: token
+  }));
+  
+  resourceManagementClient.resources.list(function(err,data){
+    if(err){
+      console.log(err);
+    } else {
+      res.send(JSON.stringify(data));
+    }
+   })
+});
 
 var server = app.listen(3000, function () {
 	var host = server.address().address,
   		port = server.address().port;
-
-  	AuthenticateServerUser();
 })
