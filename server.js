@@ -47,14 +47,14 @@ var hostName = '.azurewebsites.net',
 	managementClient;
 
 var sampleParameters = {
-  tenant : '3f6c9704-10d4-4108-aac1-d5a26ac5f799', // can get this with users login response
+  tenant : '3f6c9704-10d4-4108-aac1-d5a26ac5f799', // unique identifier of the directory tenant that issued the token. found in directory -> app -> view endpoints at the bottom
   authorityHostUrl : 'https://login.windows.net',
-  clientId : '8f6b2a6c-fba5-43e9-a0b2-1639553c571c', // jimmywoods1 app client id
+  clientId : '8f6b2a6c-fba5-43e9-a0b2-1639553c571c', // cloudOS app (under jimmywoods1 subscription) client id
   clientSecret: 'zuiVAwjZs7kREke2diuWMKHJoGWH6HMIjbDSkn0ojXk=',
   //username : 'rnchell@jimmywoods1outlook.onmicrosoft.com',
-  username: 'jimmywoods1@outlook.com',
+  //username: 'jimmywoods1@outlook.com',
   //password : 'thewizard1!'
-  password: 'thewizard!'
+  //password: 'thewizard!'
 };
 
 /*
@@ -89,23 +89,12 @@ var templateAuthzUrl = 'https://login.windows.net/' + sampleParameters.tenant + 
 var token = '';
 
 app.get('/', function(req, res) {
-  res.redirect('login');
+  res.render('index');
 });
 
-app.get('/login', function(req, res) {
-  console.log(req.cookies);
-
-  res.cookie('acookie', 'this is a cookie');
-
-  res.send('\
-<head>\
-  <title>FooBar</title>\
-</head>\
-<body>\
-  <a href="./auth">Login</a>\
-</body>\
-    ');
-});
+app.post('/login', function(req,res){
+  res.redirect('/auth');
+})
 
 /* Gets provider namespace needed for other calls */
 function getProviderName(resourceType) {
@@ -228,14 +217,18 @@ app.get('/websites', function(req,res){
 			console.log(err);
 		} else {
 			console.log(result);
+      if(result && result.webSpaces.length > 0){
 			var webSpaceName = result.webSpaces[0].name;
-			websiteMgmtClient.webSpaces.listWebSites(webSpaceName,function(err,results){
-				if(err){
-					console.log(err);
-				} else {
-					res.send(JSON.stringify({websites: results.webSites}));
-				}
-			})
+  			websiteMgmtClient.webSpaces.listWebSites(webSpaceName,function(err,results){
+  				if(err){
+  					console.log(err);
+  				} else {
+  					res.send(JSON.stringify({websites: results.webSites}));
+  				}
+  			})
+      } else {
+        res.send('no webspaces');
+      }
 		}
 	});
 })
