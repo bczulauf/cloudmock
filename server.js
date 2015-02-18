@@ -230,6 +230,7 @@ app.get('/websites', function(req,res){
 	});
 })
 
+/* Get resources under a subscription */
 app.get('/subscriptions/:subscriptionId/resources', function(req,res){
   
   resourceManagementClient = resourceManagement.createResourceManagementClient(new common.TokenCloudCredentials({
@@ -246,6 +247,7 @@ app.get('/subscriptions/:subscriptionId/resources', function(req,res){
    })
 });
 
+/* Get resource groups under a subscription */
 app.get('/subscriptions/:subscriptionId/resourcegroups', function(req,res){
 	resourceManagementClient = resourceManagement.createResourceManagementClient(new common.TokenCloudCredentials({
 	    subscriptionId: subscriptionId,
@@ -260,6 +262,127 @@ app.get('/subscriptions/:subscriptionId/resourcegroups', function(req,res){
     }
   })
 })
+
+/* Get resource belonging to a resource group */
+app.get('/resourcegroups/:resourceGroupName/resources/:resourceName', function(req,res){
+  var resourceName =  'cloudmocktest1';
+  var resourceType = 'Microsoft.Web/serverFarms'; //website
+  var resourceGroupName = 'Default-Web-WestUS';
+  var resourceGroupId = '/subscriptions/' + subscriptionId + '/resourceGroups/Default-Web-WestUS';
+  var resourceProviderApiVersion = '2015-01-01';
+  var parent = '';
+  var parameters = {location: 'westus'}; // required
+
+  var resourceIdentity = resourceManagement.createResourceIdentity(resourceName,resourceType,resourceProviderApiVersion,parent);
+
+  resourceManagementClient = resourceManagement.createResourceManagementClient(new common.TokenCloudCredentials({
+      subscriptionId: subscriptionId,
+      token: token
+    }));
+
+  resourceManagementClient.resources.get(resourceGroupName,resourceIdentity,parameters,function(err,data){
+    if(err){
+      console.log(err);
+    } else {
+      res.send(JSON.stringify(data));
+    }
+  })
+})
+
+/* Create a new resource group */
+app.put('/subscriptions/:subscriptionId/resourcegroups/:resourceGroupName', function(req,res){
+  
+  var resourceGroupName = 'cloudOSApp1';
+  var parameters = {
+    location: 'westus'};
+
+  resourceManagementClient = resourceManagement.createResourceManagementClient(new common.TokenCloudCredentials({
+      subscriptionId: subscriptionId,
+      token: token
+    }));
+
+  resourceManagementClient.resourceGroups.createOrUpdate(resourceGroupName,parameters,function(err,data){
+    if(err){
+      console.log(err);
+    } else {
+      res.send(JSON.stringify(data));
+    }
+  })
+})
+
+/* Create a new resource under a resource group */
+app.put('/subscriptions/:subscriptionId/resourcegroups/:resourcegroup/resources/:resourceName', function(req,res){
+  
+  var resourceName =  'cloudmocktest2';
+  var resourceType = 'Microsoft.Web/serverFarms';
+  var resourceGroupName = 'Default-Web-WestUS';
+  var resourceGroupId = '/subscriptions/' + subscriptionId + '/resourceGroups/Default-Web-WestUS';
+  var resourceProviderApiVersion = '2015-01-01';
+  var parent = '';
+  var parameters = {location: 'westus'}; // required
+
+  var resourceIdentity = resourceManagement.createResourceIdentity(resourceName,resourceType,resourceProviderApiVersion,parent);
+
+	resourceManagementClient = resourceManagement.createResourceManagementClient(new common.TokenCloudCredentials({
+	    subscriptionId: subscriptionId,
+	    token: token
+	  }));
+
+	resourceManagementClient.resources.createOrUpdate(resourceGroupName,resourceIdentity,parameters,function(err,data){
+    if(err){
+      console.log(err);
+    } else {
+      res.send(JSON.stringify(data));
+    }
+  })
+})
+
+/*
+  Other Resource Operations:
+    - checkExistance (Checks whether resource exists.)
+    - delete (Delete resource and all of its resources.)
+    - move (Move resources within or across subscriptions.)
+  Other Resource Group Operations:
+    - beginDeleting (Begin deleting resource group.To determine whether the operation has finished processing the request, call GetLongRunningOperationStatus.)
+    - checkExistence
+    - createOrUpdate
+    - delete
+    - get
+    - list
+
+/*
+
+Resource Providers are the beginning strings of the resource type
+ex. microsoft.cache/redis -> resource provider = microsoft.cache
+
+
+Resource Types
+
+microsoft.cache/redis  
+microsoft.classiccompute/domainnames  
+microsoft.classiccompute/virtualmachines  
+microsoft.classicnetwork/virtualnetworks  
+microsoft.classicstorage/storageaccounts  
+microsoft.classicstorage/storageaccounts/services/diagnosticsettings  
+microsoft.datafactory/datafactories  
+microsoft.documentdb/databaseaccounts  
+microsoft.insights/alertrules  
+microsoft.insights/autoscalesettings  
+microsoft.insights/components  
+microsoft.search/searchservices  
+microsoft.sql/servers  
+microsoft.sql/servers/databases  
+microsoft.sql/servers/firewallrules  
+microsoft.visualstudio/account  
+microsoft.visualstudio/account/project  
+microsoft.web/serverfarms  
+microsoft.web/sites  
+microsoft.web/sites/config  
+microsoft.web/sites/extensions  
+newrelic.apm/accounts  
+successbricks.cleardb/databases  
+
+*/
 
 var server = app.listen(3000, function () {
 	var host = server.address().address,
