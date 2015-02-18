@@ -10,14 +10,17 @@
             "groups": [
                 {
                     "name": "default",
+                    "type": "app",
                     "location": "us-west"
                 },
                 {
                     "name": "microsoft",
+                    "type": "app",
                     "location": "us-west"
                 },
                 {
                     "name": "corpinc",
+                    "type": "app",
                     "location": "us-west"
                 }
             ]
@@ -109,7 +112,7 @@
         root.addChild(app.name);
 
         // Appends directories to dom.
-        appendFolder(app.name, "app", app.location);
+        appendFolder(app.name, app.type, app.location);
     });
 
     // Adds root to breadcrumb.
@@ -127,7 +130,7 @@
         browseList.html("");
 
         _.each(clickedCrumbObj.children, function(folder) {
-            appendFolder(folder.name, "directory");
+            appendFolder(folder.name, folder.type, folder.location);
         });
     });
 
