@@ -4,8 +4,10 @@ var express = require('express'),
 	bodyParser = require('body-parser'),
 	swig = require('swig'),
 	fs = require('fs'),
-	webSiteManagement = require('azure-mgmt-website');
-
+	http = require('http'),
+	https = require('https'),
+	webSiteManagement = require('azure-mgmt-website'),
+	management = require('azure-mgmt');
 
 // azure sub id: 3baf7cce-0610-43bc-b384-5105b8e71ab2
 app.use(express.static(path.join(__dirname, '/public')));
@@ -30,13 +32,21 @@ swig.setDefaults({ cache: false });
 var hostName = '.azurewebsites.net',
 	webSpaceName = 'westuswebspace',
 	serverFarm = 'Default1',
-	webSiteManagementClient;
+	webSiteManagementClient,
+	managementClient;
 
 function AuthenticateServerUser(){
+	var managementCreds = management.createCertificateCloudCredentials({
+	  subscriptionId: '3baf7cce-0610-43bc-b384-5105b8e71ab2',
+	  pem: fs.readFileSync(__dirname + '/' + '3baf7cce-0610-43bc-b384-5105b8e71ab2.pem')
+	});
+
 	webSiteManagementClient = webSiteManagement.createWebSiteManagementClient(webSiteManagement.createCertificateCloudCredentials({
 	  	subscriptionId: '3baf7cce-0610-43bc-b384-5105b8e71ab2',
 	  	pem: fs.readFileSync(__dirname + '/' + '3baf7cce-0610-43bc-b384-5105b8e71ab2.pem')
 	}));
+
+	managementClient = management.createManagementClient(managementCreds);
 }
 
 app.get('/', function (req, res) {
@@ -87,9 +97,9 @@ app.get('/home', function(req, res){
 	    if (err) {
 		    console.error(err);
 		} else {
-		    var webSpaceName = result.webSpaces[0].name;
+		   var webSpaceName = result.webSpaces[0].name;
 
-		    webSiteManagementClient.webSpaces.listWebSites(webSpaceName,function(err,results){
+	    webSiteManagementClient.webSpaces.listWebSites(webSpaceName,function(err,results){
 				if(err){
 					console.log(err);
 				} else {
@@ -97,10 +107,85 @@ app.get('/home', function(req, res){
 
 					res.render('home', {websites: results.webSites});
 				}
-		    })
-		}
+		   });
+			}
 	});
+
+	console.log(managementClient.baseUri);
+	managementClient.listSubscriptions(function(err,result){
+		console.log(err);
+	});
+});
+//https://management.azure.com/subscriptions/{subscription-id}/resourcegroups?api-version={api-version}&$top={top}$skiptoken={skiptoken}&$filter={filter}
+function testMethods(){
+	var options = {
+	  host: 'management.core.windows.net',
+	  port: 443,
+	  headers: {'x-ms-version':'2014-05-01'},
+	  path: '/3baf7cce-0610-43bc-b384-5105b8e71ab2/affinitygroups',
+	  method: 'GET'
+	};
+
+
+	var req = https.request(options, function(res) {
+	  console.log(res.statusCode);
+	  res.setEncoding('utf8');
+
+	  res.on('data', function(d) {
+	    console.log(d);
+	  });
+	});
+	req.end();
+
+	req.on('error', function(e) {
+	  console.error(e);
+	});
+	// webSiteManagementClient.webSpaces.list(function (err, result) {
+	//     if (err) {
+	// 	    console.error(err);
+	// 	} else {
+	//     var webSpaceName = result.webSpaces[0].name;
+
+	//     webSiteManagementClient.webSpaces.listWebSites(webSpaceName,function(err,results){
+	// 			if(err){
+	// 				console.log(err);
+	// 			} else {
+	// 				console.log(results.webSites[0].uri);
+
+	// 				res.render('home', {websites: results.webSites});
+	// 			}
+	//     })
+	// 	}
+	// });
+
+	console.log(managementClient.baseUri);
+	testMethods();
 })
+//https://management.azure.com/subscriptions/{subscription-id}/resourcegroups?api-version={api-version}&$top={top}$skiptoken={skiptoken}&$filter={filter}
+function testMethods(){
+	var options = {
+	  host: 'management.core.windows.net',
+	  port: 443,
+	  headers: {'x-ms-version':'2014-05-01'},
+	  path: '/3baf7cce-0610-43bc-b384-5105b8e71ab2/affinitygroups',
+	  method: 'GET'
+	};
+
+
+	var req = https.request(options, function(res) {
+	  console.log(res.statusCode);
+	  res.setEncoding('utf8');
+
+	  res.on('data', function(d) {
+	    console.log(d);
+	  });
+	});
+	req.end();
+
+	req.on('error', function(e) {
+	  console.error(e);
+	});
+}
 
 var server = app.listen(3000, function () {
 	var host = server.address().address,
