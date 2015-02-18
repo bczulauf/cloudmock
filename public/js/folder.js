@@ -6,16 +6,19 @@
         browseList = $("#browse-list");
 
     // This is temp.
-    var directoriesJSON = {
-            "directories": [
+    var resourceGroupsJSON = {
+            "groups": [
                 {
-                    "name": "default"
+                    "name": "default",
+                    "location": "us-west"
                 },
                 {
-                    "name": "microsoft"
+                    "name": "microsoft",
+                    "location": "us-west"
                 },
                 {
-                    "name": "corpinc"
+                    "name": "corpinc",
+                    "location": "us-west"
                 }
             ]
         };
@@ -78,33 +81,35 @@
     }
 
     // Appends the folder name to the DOM.
-    var appendFolder = function(name, type) {
+    var appendFolder = function(name, type, location) {
     	var item = $(
 	    		"<li class='browse-folder clearfix'>" +
-	    			"<div class='column large-5'>" + name + "</div>" + 
+	    			"<div class='column large-6'>" + name + "</div>" + 
 	    			"<div class='column large-2'>" + type + "</div>" +
+                    "<div class='column large-3'>" + location + "</div>" +
+                    "<div class='column large-5 last-column'>none</div>" +
 	    		"</li>"
     		);
 
     	browseList.append(item);
     }
 
-    var getDirectories = function() {
-    	return directoriesJSON["directories"];
+    var getResourceGroups = function() {
+    	return resourceGroupsJSON["groups"];
     }
 
     // Initializes root folder.
     var root = new Folder("azure");
 
-    // Gets directories for user.
-    var directories = getDirectories();
+    // Gets resource groups for user.
+    var apps = getResourceGroups();
 
-    _.each(directories, function(directory) {
+    _.each(apps, function(app) {
         // Adds directories to root folder.
-        root.addChild(directory.name);
+        root.addChild(app.name);
 
         // Appends directories to dom.
-        appendFolder(directory.name, "directory");
+        appendFolder(app.name, "app", app.location);
     });
 
     // Adds root to breadcrumb.
