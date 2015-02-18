@@ -12,6 +12,7 @@ var cookieParser = require('cookie-parser');
 var session = require('cookie-session');
 var crypto = require('crypto');
 var common = require("azure-common"),
+    http = require('http'),
     resourceManagement = require("azure-mgmt-resource");
 var websiteMgmt = require('azure-mgmt-website');
 var AuthenticationContext = require('adal-node').AuthenticationContext;
@@ -106,6 +107,7 @@ app.get('/login', function(req, res) {
     ');
 });
 
+/* Gets provider namespace needed for other calls */
 function getProviderName(resourceType) {
   var firstIndex = resourceType.indexOf('/');
   var providerName;
@@ -274,34 +276,62 @@ app.get('/subscriptions/:subscriptionId/resourcegroups', function(req,res){
 /* Get resource belonging to a resource group */
 app.get('/resourcegroups/:resourceGroupName/resources/:resourceName', function(req,res){
   
-  var resourceName = req.params.resourceName || 'cloudmocktest1';
-  var resourceType = 'Microsoft.Web/serverFarms'; //website
-  var resourceGroupName = req.params.resourceGroupName || 'Default-Web-WestUS';
+  /* TODO: store this somewhere or pass it in uri */
+  //var resourceType = 'Microsoft.Web/serverFarms'; // this is the type for a website. 
+
+  // This should be required with no default
+  //var resourceGroupName = req.params.resourceGroupName || 'Default-Web-WestUS';
+  
+  // not needed for now
   //var resourceGroupId = '/subscriptions/' + subscriptionId + '/resourceGroups/' + resourceGroupName + '/providers/' + providerNamespace + '/serverFarms/Default1';
   
-  /* have to look this up using provider namespace so we can pass in correct api version */
-  var resourceProviderNamespace = getProviderName(resourceType);
+  //var resourceProviderNamespace = getProviderName(resourceType);
 
-  // TODO: send request to /providers/resourceNamespace to get api version
-  var resourceProviderApiVersion = '2014-11-01';
-  var parent = '';
-  var parameters = {location: 'westus'}; // required
+  // var options = {
+  //   port: 3000,
+  //   path: '/providers/' + resourceType,
+  //   method: 'GET'
+  // };
 
-  var resourceIdentity = resourceManagement.createResourceIdentity(resourceName,resourceType,resourceProviderApiVersion,parent);
+  // TODO: split resourceType into pieces
+  http.get('http://localhost:3000/providers/' + resourceType, function(resp){
+    var body = '';
+    resp.on('data', function(chunk){
+      body += chunk;
+    });
+    resp.on('end', function(){
+      console.log(body);
+      var parsedBody = JSON.parse(body);
+      console.log(parsedBody);
+
+      var resourceProviderApiVersion = parsedBody.apiVersion;
+      console.log(resourceProviderApiVersion);
+
+      var resourceName = req.params.resourceName || 'cloudmocktest1';
+
+      var resourceType = 'Microsoft.Web/serverFarms'; //website
+      var resourceGroupName = req.params.resourceGroupName || 'Default-Web-WestUS';
+      var resourceProviderNamespace = getProviderName(resourceType); // Microsoft.Web
+      var parent = '';
+
+      var resourceIdentity = resourceManagement.createResourceIdentity(resourceName,resourceType,resourceProviderApiVersion,parent);
 
 
-  resourceManagementClient = resourceManagement.createResourceManagementClient(new common.TokenCloudCredentials({
-      subscriptionId: subscriptionId,
-      token: token
-    }));
+      resourceManagementClient = resourceManagement.createResourceManagementClient(new common.TokenCloudCredentials({
+          subscriptionId: subscriptionId,
+          token: token
+        }));
 
-  resourceManagementClient.resources.get(resourceGroupName,resourceIdentity,function(err,data){
-    if(err){
-      console.log(err);
-    } else {
-      res.send(JSON.stringify(data));
-    }
-  })
+      resourceManagementClient.resources.get(resourceGroupName,resourceIdentity,function(err,data){
+        if(err){
+          console.log(err);
+        } else {
+          res.send(JSON.stringify(data));
+        }
+      });
+    });
+      
+  });
 })
 
 /* Create a new resource group */
@@ -357,17 +387,38 @@ app.put('/subscriptions/:subscriptionId/resourcegroups/:resourceGroupName/resour
   })
 })
 
-app.get('/providers/:providerNamespace', function(req,res){
+app.get('/providers/:providerNamespace/:resourceTypeName', function(req,res){
+  console.log('GETTING PROVIDER INFO');
+  var namespace = req.params.providerNamespace;
+  var resourceTypeName = req.params.resourceTypeName;
+
   resourceManagementClient = resourceManagement.createResourceManagementClient(new common.TokenCloudCredentials({
       subscriptionId: subscriptionId,
       token: token
     }));
 
-  resourceManagementClient.providers.get(req.params.providerNamespace,function(err,data){
+  resourceManagementClient.providers.get(namespace,function(err,data){
     if(err){
       console.log(err);
     } else {
-      res.send(JSON.stringify(data));
+      //res.send(JSON.stringify(data));
+      var info = {};
+
+      var provider = data.provider;
+      info.providerId = provider.id;
+      info.registrationState = provider.registrationState;
+      info.apiVersion = '';
+
+      for (var i = 0; i < provider.resourceTypes.length; i++) {
+        var type = provider.resourceTypes[i];
+        if(type.name === resourceTypeName){
+          if(type.apiVersions.length > 0){
+            info.apiVersion = type.apiVersions[0];
+          }
+        }
+      };
+
+      res.send(JSON.stringify(info));
     }
   })
 })
