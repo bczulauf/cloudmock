@@ -1,29 +1,32 @@
-(function($) {
+(function($, underscore, Breadcrumb) {
 	"use strict";
 
-	var directoriesJSON = {
-    		"directories": [
-    			{
-    				"name": "default"
-    			},
-    			{
-    				"name": "microsoft"
-    			},
-    			{
-    				"name": "corpinc"
-    			}
-    		]
-    	},
+    var options = {},
+        breadcrumb = $("#breadcrumb"),
         browseList = $("#browse-list");
 
-	// Folder - superclass.
+    // This is temp.
+    var directoriesJSON = {
+            "directories": [
+                {
+                    "name": "default"
+                },
+                {
+                    "name": "microsoft"
+                },
+                {
+                    "name": "corpinc"
+                }
+            ]
+        };
+
+	// Folder class.
 	function Folder(name) {
 		this.children = [];
 		this.name = name;
 		this.selected = false;
 	}
 
-	// superclass methods.
 	Folder.prototype.addChild = function(name) {
         this.children.push(new Folder(name));
     };
@@ -48,6 +51,7 @@
         return result;
     };
 
+    // Returns the folder.
     Folder.prototype.getFolder = function(target) {
         if (this.name === target) {
             return this;
@@ -73,6 +77,7 @@
         return folderToReturn;
     }
 
+    // Appends the folder name to the DOM.
     var appendFolder = function(name, type) {
     	var item = $(
 	    		"<li class='browse-folder clearfix'>" +
@@ -88,55 +93,30 @@
     	return directoriesJSON["directories"];
     }
 
-    var addToBreadcrumb = function(name) {
-        breadcrumbList.push(name);
-    }
-
-    var breadcrumbList = [];
-
     // Initializes root folder.
     var root = new Folder("azure");
-
-    // Adds root to breadcrumb.
-    addToBreadcrumb("azure");
 
     // Gets directories for user.
     var directories = getDirectories();
 
-    // Adds directories to root folder.
-    // Appends directories to dom.
     _.each(directories, function(directory) {
-    	root.addChild(directory.name);
-    	appendFolder(directory.name, "directory");
+        // Adds directories to root folder.
+        root.addChild(directory.name);
+
+        // Appends directories to dom.
+        appendFolder(directory.name, "directory");
     });
 
-    var getSelectedCrumb = function(name) {
-    	if (breadcrumbList.length === 0) {
-    		return null;
-    	}
+    // Adds root to breadcrumb.
+    Breadcrumb.addCrumb("azure");
 
-    	var crumb = root.getFolder(name);
+    // Creates breadcrumb.
+    Breadcrumb.displayBreadcrumb();
 
-        return crumb;
-    }
-
-    var appendCrumb = function(name) {
-        var breadcrumb = $("#breadcrumb");
-
-        var crumb = $(
-                "<span>" + name + "</span>"
-            );
-
-        breadcrumb.append(crumb);
-    }
-
-    _.each(breadcrumbList, function(crumb) {
-        appendCrumb(crumb);
-    });
-
-    $("#breadcrumb").on("click", "span", function(e) {
+    // Listens for click on breadcrumb.
+    breadcrumb.on("click", "span", function(e) {
         var clickedCrumb = $(e.target).text(),
-            clickedCrumbObj = getSelectedCrumb(clickedCrumb);
+            clickedCrumbObj = root.getFolder(clickedCrumb);
 
         // Clears browse list.
         browseList.html("");
@@ -146,4 +126,4 @@
         });
     });
 
-}(window.jQuery))
+}(window.jQuery, window.underscore, Breadcrumb))
