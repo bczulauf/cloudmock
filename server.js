@@ -106,6 +106,14 @@ app.get('/login', function(req, res) {
     ');
 });
 
+function getProviderName(resourceType) {
+  var firstIndex = resourceType.indexOf('/');
+  var providerName;
+  if (firstIndex !== -1){
+    providerName = resourceType.substr(0, firstIndex);
+  }
+  return providerName;
+}
 
 function createAuthorizationUrl(state) {
   var authorizationUrl = templateAuthzUrl.replace('<client_id>', sampleParameters.clientId);
@@ -179,23 +187,23 @@ app.get('/getAToken', function(req, res) {
   });
 });
 
-app.post('/websites/create', function(req, res){
-	res.send(req.body.websiteName + ' created');
-	var webSiteName = req.body.websiteName;
+// app.post('/websites/create', function(req, res){
+// 	res.send(req.body.websiteName + ' created');
+// 	var webSiteName = req.body.websiteName;
 
-	// webSiteManagementClient.webSites.create("westuswebspace", {
-	//   name: webSiteName,
-	//   hostNames: [webSiteName + hostName],
-	//   webSpaceName: webSpaceName,
-	//   serverFarm: serverFarm
-	// }, function (err, result) {
-	//   if (err) {
-	//     console.error(err);
-	//   } else {
-	//     console.info(result);
-	//   }
-	// });
-})
+// 	// webSiteManagementClient.webSites.create("westuswebspace", {
+// 	//   name: webSiteName,
+// 	//   hostNames: [webSiteName + hostName],
+// 	//   webSpaceName: webSpaceName,
+// 	//   serverFarm: serverFarm
+// 	// }, function (err, result) {
+// 	//   if (err) {
+// 	//     console.error(err);
+// 	//   } else {
+// 	//     console.info(result);
+// 	//   }
+// 	// });
+// })
 
 app.get('/home', function(req, res){
 	res.render('home');
@@ -265,22 +273,29 @@ app.get('/subscriptions/:subscriptionId/resourcegroups', function(req,res){
 
 /* Get resource belonging to a resource group */
 app.get('/resourcegroups/:resourceGroupName/resources/:resourceName', function(req,res){
-  var resourceName =  'cloudmocktest1';
+  
+  var resourceName = req.params.resourceName || 'cloudmocktest1';
   var resourceType = 'Microsoft.Web/serverFarms'; //website
-  var resourceGroupName = 'Default-Web-WestUS';
-  var resourceGroupId = '/subscriptions/' + subscriptionId + '/resourceGroups/Default-Web-WestUS';
-  var resourceProviderApiVersion = '2015-01-01';
+  var resourceGroupName = req.params.resourceGroupName || 'Default-Web-WestUS';
+  //var resourceGroupId = '/subscriptions/' + subscriptionId + '/resourceGroups/' + resourceGroupName + '/providers/' + providerNamespace + '/serverFarms/Default1';
+  
+  /* have to look this up using provider namespace so we can pass in correct api version */
+  var resourceProviderNamespace = getProviderName(resourceType);
+
+  // TODO: send request to /providers/resourceNamespace to get api version
+  var resourceProviderApiVersion = '2014-11-01';
   var parent = '';
   var parameters = {location: 'westus'}; // required
 
   var resourceIdentity = resourceManagement.createResourceIdentity(resourceName,resourceType,resourceProviderApiVersion,parent);
+
 
   resourceManagementClient = resourceManagement.createResourceManagementClient(new common.TokenCloudCredentials({
       subscriptionId: subscriptionId,
       token: token
     }));
 
-  resourceManagementClient.resources.get(resourceGroupName,resourceIdentity,parameters,function(err,data){
+  resourceManagementClient.resources.get(resourceGroupName,resourceIdentity,function(err,data){
     if(err){
       console.log(err);
     } else {
@@ -292,7 +307,7 @@ app.get('/resourcegroups/:resourceGroupName/resources/:resourceName', function(r
 /* Create a new resource group */
 app.put('/subscriptions/:subscriptionId/resourcegroups/:resourceGroupName', function(req,res){
   
-  var resourceGroupName = 'cloudOSApp1';
+  var resourceGroupName = req.params.resourceGroupName || 'cloudOSApp1';
   var parameters = {
     location: 'westus'};
 
@@ -311,11 +326,16 @@ app.put('/subscriptions/:subscriptionId/resourcegroups/:resourceGroupName', func
 })
 
 /* Create a new resource under a resource group */
-app.put('/subscriptions/:subscriptionId/resourcegroups/:resourcegroup/resources/:resourceName', function(req,res){
+app.put('/subscriptions/:subscriptionId/resourcegroups/:resourceGroupName/resources/:resourceName', function(req,res){
   
-  var resourceName =  'cloudmocktest2';
-  var resourceType = 'Microsoft.Web/serverFarms';
-  var resourceGroupName = 'Default-Web-WestUS';
+  var resourceName = req.params.resourceName;
+
+  if(!resourceName){
+    res.send('resourceName is a required parameter');
+  }
+
+  var resourceType = 'Microsoft.Web/serverFarms'; // default to website for now
+  var resourceGroupName = req.params.resourceGroupName || 'Default-Web-WestUS';
   var resourceGroupId = '/subscriptions/' + subscriptionId + '/resourceGroups/Default-Web-WestUS';
   var resourceProviderApiVersion = '2015-01-01';
   var parent = '';
@@ -337,6 +357,20 @@ app.put('/subscriptions/:subscriptionId/resourcegroups/:resourcegroup/resources/
   })
 })
 
+app.get('/providers/:providerNamespace', function(req,res){
+  resourceManagementClient = resourceManagement.createResourceManagementClient(new common.TokenCloudCredentials({
+      subscriptionId: subscriptionId,
+      token: token
+    }));
+
+  resourceManagementClient.providers.get(req.params.providerNamespace,function(err,data){
+    if(err){
+      console.log(err);
+    } else {
+      res.send(JSON.stringify(data));
+    }
+  })
+})
 /*
   Other Resource Operations:
     - checkExistance (Checks whether resource exists.)
