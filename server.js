@@ -13,6 +13,7 @@ var session = require('cookie-session');
 var crypto = require('crypto');
 var common = require("azure-common"),
     resourceManagement = require("azure-mgmt-resource");
+var websiteMgmt = require('azure-mgmt-website');
 var AuthenticationContext = require('adal-node').AuthenticationContext;
 var xml = require('xml2js');
 var util = require('util');
@@ -47,7 +48,7 @@ var hostName = '.azurewebsites.net',
 var sampleParameters = {
   tenant : '3f6c9704-10d4-4108-aac1-d5a26ac5f799', // can get this with users login response
   authorityHostUrl : 'https://login.windows.net',
-  clientId : '8f6b2a6c-fba5-43e9-a0b2-1639553c571c',
+  clientId : '8f6b2a6c-fba5-43e9-a0b2-1639553c571c', // jimmywoods1 app client id
   clientSecret: 'zuiVAwjZs7kREke2diuWMKHJoGWH6HMIjbDSkn0ojXk=',
   //username : 'rnchell@jimmywoods1outlook.onmicrosoft.com',
   username: 'jimmywoods1@outlook.com',
@@ -55,12 +56,33 @@ var sampleParameters = {
   password: 'thewizard!'
 };
 
+/*
+	Any api calls have to be made by whichever user is logged in has to use
+	that users subscription id
+*/
+
+/* 
+	When prompted to login, all api calls that require a subscription id
+	need to be associated with the user logging in
+
+	If login as jimmywoods1, use the subscriptionid for jimmywoods1
+	otherwise the token will be incorrect and api calls will fail
+*/
+var jimmywoods1SubscriptionId = '3baf7cce-0610-43bc-b384-5105b8e71ab2';
+var rnchelljimmywoods1outlookSubId = '9e65f69f-b5c2-48ce-9260-e0a6c51f9b23';
+
+var subscriptionId = jimmywoods1SubscriptionId;
+
 var resourceManagementClient;
 
 var authorityUrl = sampleParameters.authorityHostUrl + '/' + sampleParameters.tenant;
 var redirectUri = 'http://localhost:3000/getAToken';
-var resource = 'https://management.azure.com/'; // needed for resource management api calls
-//var resource = 'https://management.core.windows.net/'; // needed for service management api calls
+
+/* 
+	resources vary depending on what api you are using.
+*/
+//var resource = 'https://management.azure.com/'; // needed for resource management api calls
+var resource = 'https://management.core.windows.net/'; // needed for service management api calls
 
 var templateAuthzUrl = 'https://login.windows.net/' + sampleParameters.tenant + '/oauth2/authorize?response_type=code&client_id=<client_id>&redirect_uri=<redirect_uri>&state=<state>&resource=<resource>';
 var token = '';
@@ -147,6 +169,7 @@ app.get('/getAToken', function(req, res) {
 
       console.log("******REFRESH RESPONSE*******");
       console.log(refreshResponse);
+      token = refreshResponse.accessToken;
 
       //res.redirect('http://portal.azure.com'); 
       //getResources();
@@ -174,19 +197,46 @@ app.post('/websites/create', function(req, res){
 	// });
 })
 
-app.get('/websites', function(req, res){
-})
-
 app.get('/home', function(req, res){
 	res.render('home');
 });
 
-app.get('/getAllResourcesBySubscription', function(req,res){
-	resourceManagementClient = resourceManagement.createResourceManagementClient(new common.TokenCloudCredentials({
-    subscriptionId: "3baf7cce-0610-43bc-b384-5105b8e71ab2",
-    token: token
-  }));
+/* get websites for user and subscription */
+app.get('/websites', function(req,res){
+	/* 
+		to use this client, you have to change the resource at the top to be
+		https://management.core.windows.net/
+	*/
+
+	var websiteMgmtClient = websiteMgmt.createWebSiteManagementClient(new common.TokenCloudCredentials({
+	    subscriptionId: subscriptionId,
+	    token: token
+	  }))
+
+	websiteMgmtClient.webSpaces.list(function(err,result){
+		if(err){
+			console.log(err);
+		} else {
+			console.log(result);
+			var webSpaceName = result.webSpaces[0].name;
+			websiteMgmtClient.webSpaces.listWebSites(webSpaceName,function(err,results){
+				if(err){
+					console.log(err);
+				} else {
+					res.send(JSON.stringify({websites: results.webSites}));
+				}
+			})
+		}
+	});
+})
+
+app.get('/subscriptions/:subscriptionId/resources', function(req,res){
   
+  resourceManagementClient = resourceManagement.createResourceManagementClient(new common.TokenCloudCredentials({
+	    subscriptionId: subscriptionId,
+	    token: token
+	  }));
+
   resourceManagementClient.resources.list(function(err,data){
     if(err){
       console.log(err);
@@ -195,6 +245,21 @@ app.get('/getAllResourcesBySubscription', function(req,res){
     }
    })
 });
+
+app.get('/subscriptions/:subscriptionId/resourcegroups', function(req,res){
+	resourceManagementClient = resourceManagement.createResourceManagementClient(new common.TokenCloudCredentials({
+	    subscriptionId: subscriptionId,
+	    token: token
+	  }));
+
+	resourceManagementClient.resourceGroups.list(function(err,data){
+    if(err){
+      console.log(err);
+    } else {
+      res.send(JSON.stringify(data));
+    }
+  })
+})
 
 var server = app.listen(3000, function () {
 	var host = server.address().address,
