@@ -15,12 +15,22 @@ var common = require("azure-common"),
     http = require('http'),
     resourceManagement = require("azure-mgmt-resource");
 var websiteMgmt = require('azure-mgmt-website');
-var AuthenticationContext = require('adal-node').AuthenticationContext;
+var adal = require('adal-node');
+var AuthenticationContext = adal.AuthenticationContext;
 var xml = require('xml2js');
 var util = require('util');
+var session = require('express-session');
 
 app.use(cookieParser('a deep secret'));
-// azure sub id: 3baf7cce-0610-43bc-b384-5105b8e71ab2
+
+app.use(session({
+  secret: 'iamthereaper',
+  resave: false,
+  saveUninitialized: true,
+  /*cookie: {secure:true} HTTPS is necessary for secure cookies. 
+      If secure is set, and you access your site over HTTP, the cookie will not be set*/
+}))
+
 app.use(express.static(path.join(__dirname, '/public')));
 
 
@@ -88,14 +98,6 @@ var resource = 'https://management.core.windows.net/'; // needed for service man
 var templateAuthzUrl = 'https://login.windows.net/' + sampleParameters.tenant + '/oauth2/authorize?response_type=code&client_id=<client_id>&redirect_uri=<redirect_uri>&state=<state>&resource=<resource>';
 var token = '';
 
-app.get('/', function(req, res) {
-  res.render('index');
-});
-
-app.post('/login', function(req,res){
-  res.redirect('/auth');
-})
-
 /* Gets provider namespace needed for other calls */
 function getProviderName(resourceType) {
   var firstIndex = resourceType.indexOf('/');
@@ -113,6 +115,31 @@ function createAuthorizationUrl(state) {
   authorizationUrl = authorizationUrl.replace('<resource>', resource);
   return authorizationUrl;
 }
+
+function turnOnLogging() {
+  var log = adal.Logging;
+  log.setLoggingOptions({
+    level : log.LOGGING_LEVEL.VERBOSE,
+    log : function(level, message, error) {
+      console.log(message);
+      if (error) {
+        console.log(error);
+      }
+    }
+  });
+}
+
+turnOnLogging();
+
+app.get('/', function(req, res) {
+  res.render('index');
+});
+
+app.post('/login', function(req,res){
+  console.log(req.body.email);
+  console.log(req.body.password);
+  res.redirect('/auth');
+})
 
 // Clients get redirected here in order to create an OAuth authorize url and redirect them to AAD.
 // There they will authenticate and give their consent to allow this app access to
@@ -138,6 +165,7 @@ app.get('/getAToken', function(req, res) {
     res.send('error: state does not match');
   }
   var authenticationContext = new AuthenticationContext(authorityUrl);
+  
   authenticationContext.acquireTokenWithAuthorizationCode(req.query.code, redirectUri, resource, sampleParameters.clientId, sampleParameters.clientSecret, function(err, response) {
     var message = '';
     if (err) {
@@ -153,11 +181,9 @@ app.get('/getAToken', function(req, res) {
     console.log("******RESPONSE*******");
     console.log(response);
     token = response.accessToken;
-    //res.send(response);
-    //res.redirect('http://portal.azure.com'); 
-    //listAllSubscriptions();
-    //getResourcesByResourceGroupID();
-    //listAllTenants();
+    console.log(req.cookies);
+    /* set session user */
+    req.session.user = {userId:response.userId,firstName:response.givenName, lastName: response.familyName };
 
     // Later, if the access token is expired it can be refreshed.
     authenticationContext.acquireTokenWithRefreshToken(response.refreshToken, sampleParameters.clientId, sampleParameters.clientSecret, resource, function(refreshErr, refreshResponse) {
@@ -178,26 +204,27 @@ app.get('/getAToken', function(req, res) {
   });
 });
 
-// app.post('/websites/create', function(req, res){
-// 	res.send(req.body.websiteName + ' created');
-// 	var webSiteName = req.body.websiteName;
+app.post('/websites/create', function(req, res){
+	res.send(req.body.websiteName + ' created');
+	var webSiteName = req.body.websiteName;
 
-// 	// webSiteManagementClient.webSites.create("westuswebspace", {
-// 	//   name: webSiteName,
-// 	//   hostNames: [webSiteName + hostName],
-// 	//   webSpaceName: webSpaceName,
-// 	//   serverFarm: serverFarm
-// 	// }, function (err, result) {
-// 	//   if (err) {
-// 	//     console.error(err);
-// 	//   } else {
-// 	//     console.info(result);
-// 	//   }
-// 	// });
-// })
+	// webSiteManagementClient.webSites.create("westuswebspace", {
+	//   name: webSiteName,
+	//   hostNames: [webSiteName + hostName],
+	//   webSpaceName: webSpaceName,
+	//   serverFarm: serverFarm
+	// }, function (err, result) {
+	//   if (err) {
+	//     console.error(err);
+	//   } else {
+	//     console.info(result);
+	//   }
+	// });
+})
 
 app.get('/home', function(req, res){
-	res.render('home');
+  console.log(req.session.user);
+	res.render('home',{userId:req.session.user.userId});
 });
 
 /* get websites for user and subscription */
