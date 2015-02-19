@@ -5,36 +5,17 @@
         breadcrumb = $("#breadcrumb"),
         browseList = $("#browse-list");
 
-    // This is temp.
-    var resourceGroupsJSON = {
-            "groups": [
-                {
-                    "name": "default",
-                    "type": "app",
-                    "location": "us-west"
-                },
-                {
-                    "name": "microsoft",
-                    "type": "app",
-                    "location": "us-west"
-                },
-                {
-                    "name": "corpinc",
-                    "type": "app",
-                    "location": "us-west"
-                }
-            ]
-        };
-
 	// Folder class.
-	function Folder(name) {
+	function Folder(name, type, location) {
 		this.children = [];
 		this.name = name;
+        this.type = type;
+        this.location = location;
 		this.selected = false;
 	}
 
-	Folder.prototype.addChild = function(name) {
-        this.children.push(new Folder(name));
+	Folder.prototype.addChild = function(name, type, location) {
+        this.children.push(new Folder(name, type, location));
     };
 
     Folder.prototype.contains = function(target) {
@@ -98,28 +79,30 @@
     }
 
     var getResourceGroups = function() {
-    	return resourceGroupsJSON["groups"];
+        $.get("/subscriptions/:subscriptionId/resourcegroups", function(groups) {
+            // Gets resource groups for user.
+            var apps = $.parseJSON(groups).resourceGroups;
+
+            _.each(apps, function(app) {
+                // Adds directories to root folder.
+                root.addChild(app.name, "app", app.location);
+
+                // Appends directories to dom.
+                appendFolder(app.name, "app", app.location);
+            });
+        })
     }
+
+    getResourceGroups();
 
     // Initializes root folder.
     var root = new Folder("azure");
-
-    // Gets resource groups for user.
-    var apps = getResourceGroups();
-
-    _.each(apps, function(app) {
-        // Adds directories to root folder.
-        root.addChild(app.name);
-
-        // Appends directories to dom.
-        appendFolder(app.name, app.type, app.location);
-    });
 
     // Adds root to breadcrumb.
     Breadcrumb.addCrumb("azure");
 
     // Creates breadcrumb.
-    Breadcrumb.displayBreadcrumb();
+    Breadcrumb.createBreadcrumb();
 
     // Listens for click on breadcrumb.
     breadcrumb.on("click", "span", function(e) {

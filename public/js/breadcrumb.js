@@ -12,7 +12,7 @@ var Breadcrumb = (function($, underscore) {
     }
 
     // Displays breadcrumb.
-    options.displayBreadcrumb = function() {
+    options.createBreadcrumb = function() {
         _.each(breadcrumbList, function(crumb) {
             _appendCrumb(crumb);
         });
