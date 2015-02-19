@@ -79,11 +79,12 @@ var sampleParameters = {
 	If login as jimmywoods1, use the subscriptionid for jimmywoods1
 	otherwise the token will be incorrect and api calls will fail
 */
-var jimmywoods1SubscriptionId = '3baf7cce-0610-43bc-b384-5105b8e71ab2';
-var rnchelljimmywoods1outlookSubId = '9e65f69f-b5c2-48ce-9260-e0a6c51f9b23';
+// var jimmywoods1SubscriptionId = '3baf7cce-0610-43bc-b384-5105b8e71ab2';
+// var rnchelljimmywoods1outlookSubId = '9e65f69f-b5c2-48ce-9260-e0a6c51f9b23';
 
-var subscriptionId = jimmywoods1SubscriptionId;
+// var subscriptionId = jimmywoods1SubscriptionId;
 
+/* ADAL Client */
 var resourceManagementClient;
 
 var authorityUrl = sampleParameters.authorityHostUrl + '/' + sampleParameters.tenant;
@@ -127,6 +128,59 @@ function turnOnLogging() {
       }
     }
   });
+}
+
+function getUserSubscriptions(req,res){
+
+  console.log('************Getting User Subscription ID**************');
+  var path = '/subscriptions?api-version=2014-04-01-preview'.replace(/'/g, '%27')
+  
+  var options = {
+    host: 'management.core.windows.net',
+    port: 443,
+    path: path,
+    method: 'GET',
+    headers: {
+     'Authorization': 'Bearer ' + token,
+     'content-type': 'application/json; charset=utf-8',
+     'x-ms-version':'2014-05-01'
+    }  
+  };
+
+  https.request(options, function(resp){
+    
+    resp.setEncoding('utf8');
+    var xmlParser = new xml.Parser();
+
+    console.log(resp.statusCode);
+    var body = "";
+    resp.on('data', function(chunk) {
+        body += chunk;
+        xmlParser.parseString(chunk, function (err, result) {
+          var subscriptions = result.Subscriptions.Subscription;
+          var subscriptionId = subscriptions[0].SubscriptionID[0];
+          req.session.user.subscriptionId = subscriptionId;
+        });
+    });
+    resp.on('end', function() {
+      console.log('SUBSCRIPTIONID: ' + req.session.user.subscriptionId);
+      authenticateAdalClient(req.session.user.subscriptionId);
+      console.log('************Ready To Go**************');
+      res.redirect('/home');
+    })
+    resp.on('error', function(e) {
+        console.log("Got error: " + e.message);
+    });
+  }).end();
+}
+
+function authenticateAdalClient(subId){
+  console.log('************Authenticating ADAL Client**************');
+
+  resourceManagementClient = resourceManagement.createResourceManagementClient(new common.TokenCloudCredentials({
+    subscriptionId: subId,
+    token: token
+  }));
 }
 
 turnOnLogging();
@@ -178,10 +232,10 @@ app.get('/getAToken', function(req, res) {
       return;
     }
 
-    console.log("******RESPONSE*******");
-    console.log(response);
+    // console.log("******RESPONSE*******");
+    // console.log(response);
     token = response.accessToken;
-    console.log(req.cookies);
+
     /* set session user */
     req.session.user = {userId:response.userId,firstName:response.givenName, lastName: response.familyName };
 
@@ -192,14 +246,11 @@ app.get('/getAToken', function(req, res) {
       }
       message += 'refreshResponse: ' + JSON.stringify(refreshResponse);
 
-      console.log("******REFRESH RESPONSE*******");
-      console.log(refreshResponse);
+      // console.log("******REFRESH RESPONSE*******");
+      // console.log(refreshResponse);
       token = refreshResponse.accessToken;
 
-      //res.redirect('http://portal.azure.com'); 
-      //getResources();
-      //getResourceGroups();
-      res.redirect('/home');
+      getUserSubscriptions(req,res);
     }); 
   });
 });
@@ -278,10 +329,6 @@ app.get('/subscriptions/:subscriptionId/resources', function(req,res){
 
 /* Get resource groups under a subscription */
 app.get('/subscriptions/:subscriptionId/resourcegroups', function(req,res){
-	resourceManagementClient = resourceManagement.createResourceManagementClient(new common.TokenCloudCredentials({
-	    subscriptionId: subscriptionId,
-	    token: token
-	  }));
 
 	resourceManagementClient.resourceGroups.list(function(err,data){
     if(err){
@@ -357,6 +404,7 @@ app.get('/resourcegroups/:resourceGroupName/resources/:resourceName', function(r
 app.post('/subscriptions/:subscriptionId/resourcegroups', function(req,res){
   
   var resourceGroupName = req.body.appName;
+  var subscriptionId = req.session.user.subscriptionId;
 
   if(!resourceGroupName || resourceGroupName === ''){
     return res.sendStatus(400);
@@ -416,6 +464,7 @@ app.get('/providers/:providerNamespace/:resourceTypeName', function(req,res){
   console.log('GETTING PROVIDER INFO');
   var namespace = req.params.providerNamespace;
   var resourceTypeName = req.params.resourceTypeName;
+  var subscriptionId = req.session.user.subscriptionId;
 
   resourceManagementClient = resourceManagement.createResourceManagementClient(new common.TokenCloudCredentials({
       subscriptionId: subscriptionId,
