@@ -1,17 +1,21 @@
-(function ($, underscore, Breadcrumb) {
+(function ($, underscore) {
     "use strict";
 
-    $("#create-website-form").submit(function(event) {
+    var browseList = $("#browse-list");
+
+    $("#create-app-form").submit(function(event) {
         event.preventDefault();
 
         var form = $(this),
-            websiteName = form.find("#website-name").val(),
+            appName = form.find("#app-name").val(),
             url = form.attr("action");
 
-        var postPromise = $.post( url, { appName: websiteName } );
+        var postPromise = $.post( url, { appName: appName } );
+
+        $("#create-folder").hide();
 
         postPromise.done(function(data) {
-            var appData = JSON.parse(data);
+            var appData = JSON.parse(data).resourceGroup;
             var appName = appData.name;
             var location = appData.location;
             var appId = appData.id;
@@ -28,8 +32,6 @@
             );
 
             browseList.append(item);
-
-            $("#create-folder").hide();
         });
     });
 
@@ -57,4 +59,4 @@
     //     });
     // });
 
-}(window.jQuery, window.underscore, Breadcrumb))
+}(window.jQuery, window.underscore))
