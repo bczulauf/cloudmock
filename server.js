@@ -223,7 +223,6 @@ app.post('/websites/create', function(req, res){
 })
 
 app.get('/home', function(req, res){
-  console.log(req.session.user);
 	res.render('home',{userId:req.session.user.userId});
 });
 
@@ -355,9 +354,14 @@ app.get('/resourcegroups/:resourceGroupName/resources/:resourceName', function(r
 })
 
 /* Create a new resource group */
-app.put('/subscriptions/:subscriptionId/resourcegroups/:resourceGroupName', function(req,res){
+app.post('/subscriptions/:subscriptionId/resourcegroups', function(req,res){
   
-  var resourceGroupName = req.params.resourceGroupName || 'cloudOSApp1';
+  var resourceGroupName = req.body.appName;
+
+  if(!resourceGroupName || resourceGroupName === ''){
+    return res.sendStatus(400);
+  }
+
   var parameters = {
     location: 'westus'};
 
@@ -370,6 +374,7 @@ app.put('/subscriptions/:subscriptionId/resourcegroups/:resourceGroupName', func
     if(err){
       console.log(err);
     } else {
+      console.log(data);
       res.send(JSON.stringify(data));
     }
   })

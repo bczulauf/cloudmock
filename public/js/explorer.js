@@ -7,11 +7,29 @@
         var form = $(this),
             websiteName = form.find("#website-name").val(),
             url = form.attr("action");
-     
-        var postPromise = $.post( url, { websiteName: websiteName } );
+
+        var postPromise = $.post( url, { appName: websiteName } );
 
         postPromise.done(function(data) {
-            $("#browse-list").prepend("<li>hi</li>")
+            var appData = JSON.parse(data);
+            var appName = appData.name;
+            var location = appData.location;
+            var appId = appData.id;
+            var tags = appData.tags;
+            var provisioningState = appData.provisioningState;
+
+            var item = $(
+                "<li class='browse-folder clearfix'>" +
+                    "<div class='column large-6'>" + appName + "</div>" + 
+                    "<div class='column large-2'>app</div>" +
+                    "<div class='column large-3'>" + location + "</div>" +
+                    "<div class='column large-5 last-column'>none</div>" +
+                "</li>"
+            );
+
+            browseList.append(item);
+
+            $("#create-folder").hide();
         });
     });
 
@@ -30,13 +48,13 @@
     });
 
     // Gets me all the websites that I am a member of.
-    $.get("/websites", function(data) {
-        var websites = data.websites;
+    // $.get("/websites", function(data) {
+    //     var websites = data.websites;
 
-        _.each(websites, function(website) {
-            explorer.addChild(website.name, folderType.website);
-            explorer.appendChild(website.name);
-        });
-    });
+    //     _.each(websites, function(website) {
+    //         explorer.addChild(website.name, folderType.website);
+    //         explorer.appendChild(website.name);
+    //     });
+    // });
 
 }(window.jQuery, window.underscore, Breadcrumb))

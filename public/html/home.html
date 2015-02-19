@@ -35,8 +35,8 @@
 		<ol id="browse-list">
 			<li id="create-folder">
 				<div class="column large-6">
-					<form id="create-website-form" action="/websites/create" method="POST">
-						<input type='text' required name='websiteName' id='folder-name' class="form-input" placeholder='Website Name'>
+					<form id="create-website-form" action="/subscriptions/NEEDTOFINDTHIS/resourcegroups" method="POST">
+						<input type='text' required name='appName' id='website-name' class="form-input" placeholder='Website Name'>
 					</form>
 				</div>
 				<div class="column large-3">
@@ -46,7 +46,7 @@
 					--
 				</div>
 				<div class="column large-5 last-column">
-					{{ userId }}
+					none
 				</div>
 			</li>
 			{% if websites %}
