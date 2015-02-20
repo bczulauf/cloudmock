@@ -19,19 +19,20 @@ body {
 
 /* Frame */
 #frame {
-	min-width: 1040px;
+	min-width: 1060px;
+	display: flex;
 }
 
 #menu {
-	float: left;
 	width: 100px;
 	background-color: #eee;
-	height: 100%;
+	height: calc(100% - 40px);
 }
 
 #content {
-	float: left;
 	width: calc(100% - 100px);
+	overflow-y: auto;
+	height: calc(100% - 40px);
 }
 
 #action-bar {
@@ -129,6 +130,10 @@ img.icon {
 	height: 40px;
 }
 
+#browse-wrapper {
+	padding-left: 20px;
+}
+
 .browse-header {
 	border-bottom: 1px solid #ccc;
 	padding-bottom: 4px;
@@ -162,6 +167,14 @@ img.icon {
     background-color: pink;
     padding: 20px;
     width: 220px;
+}
+
+#menu-wrapper {
+	padding: 40px 20px 0px 20px;
+}
+
+#account {
+	font-size: 12px;
 }
 
 /* Colors */

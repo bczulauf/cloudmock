@@ -3,32 +3,32 @@
 {% block content %}
 <div id="frame" class="clearfix">
 	<div id="menu">
-		<ol>
-			<li>
-				Projects
-			</li>
-			<li>
-				Billing
-			</li>
-			<li>
-				Users
-			</li>
-		</ol>
+		<div id="menu-wrapper">
+			<ol>
+				<li>
+					Projects
+				</li>
+				<li>
+					Billing
+				</li>
+				<li>
+					Users
+				</li>
+			</ol>
+		</div>
 	</div>
 	<div id="content">
 		<div id="action-bar" class="row">
-			<div class="container">
-				<div class="column large-10">
-					<button id="add-app" class="add-button btn-lg btn-primary">
-						Add project
-					</button>
-				</div>
-				<div class="column large-6 last-column">
-					<input id="search" class="inpt-lg inpt-full" placeholder="Search">
-				</div>
+			<div class="column large-10">
+				<button id="add-app" class="add-button btn-lg btn-primary">
+					Add project
+				</button>
+			</div>
+			<div class="column large-6 right-column last-column">
+				<input id="search" class="inpt-lg inpt-full" placeholder="Search">
 			</div>
 		</div>
-		<div class="container">
+		<div id="browse-wrapper">
 			<div class="browse-header row row-no">
 				<div class="column large-6">
 					Name
