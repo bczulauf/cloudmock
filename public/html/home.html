@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{% if hasSubscription %}
 <div id="action-bar" class="row">
 	<div class="container">
 		<div class="column large-10">
@@ -49,25 +50,10 @@
 					none
 				</div>
 			</li>
-			{% if websites %}
-				{% for site in websites %}
-			<!-- {% for prop in site.siteProperties %}
-				{{prop}}
-			{% endfor %} -->
-			<!-- <li class="browse-folder clearfix">
-				<div class="column large-8">
-					{{site.name}}
-				</div>
-				<div class="column large-2">
-					{{site.state}}
-				</div>
-				<div class="column large-6 last-column">
-					<a href="http://{{ site.hostNames[0] }}">{{site.hostNames[0]}}</a>
-				</div>
-			</li> -->
-				{% endfor %}
-			{% endif %}
 		</ol>
 	</div>
 </div>
+{% else %}
+<div>User has no subscriptions!</div>
+{% endif %}
 {% endblock %}

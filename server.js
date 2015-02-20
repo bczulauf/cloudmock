@@ -158,14 +158,24 @@ function getUserSubscriptions(req,res){
         body += chunk;
         xmlParser.parseString(chunk, function (err, result) {
           var subscriptions = result.Subscriptions.Subscription;
-          var subscriptionId = subscriptions[0].SubscriptionID[0];
+          var subscriptionId;
+          if(subscriptions && subscriptions.length > 0){
+            subscriptionId = subscriptions[0].SubscriptionID[0];
+          }
+
           req.session.user.subscriptionId = subscriptionId;
         });
     });
     resp.on('end', function() {
       console.log('SUBSCRIPTIONID: ' + req.session.user.subscriptionId);
-      authenticateAdalClient(req.session.user.subscriptionId);
-      console.log('************Ready To Go**************');
+
+      if(!req.session.user.subscriptionId){
+        console.log(req.session.user.userId + ' has no subscriptions!');
+      } else {
+        authenticateAdalClient(req.session.user.subscriptionId);
+        console.log('************Ready To Go**************');
+      }
+
       res.redirect('/home');
     })
     resp.on('error', function(e) {
@@ -274,7 +284,7 @@ app.post('/websites/create', function(req, res){
 })
 
 app.get('/home', function(req, res){
-	res.render('home',{userId:req.session.user.userId});
+	res.render('home',{userId:req.session.user.userId,hasSubscription: req.session.user.subscriptionId});
 });
 
 /* get websites for user and subscription */
