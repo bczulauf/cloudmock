@@ -30,6 +30,7 @@
     "azure-mgmt-resource": "~2.0.0-pre.15",
     "xml2js": "~0.4.5",
     "azure-mgmt": "~0.9.15",
-    "express-session": "~1.10.3"
+    "express-session": "~1.10.3",
+    "ftp": "~0.3.8"
   }
 }

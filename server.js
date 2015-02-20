@@ -13,6 +13,7 @@ var session = require('cookie-session');
 var crypto = require('crypto');
 var common = require("azure-common"),
     http = require('http'),
+    fs = require('fs');
     resourceManagement = require("azure-mgmt-resource");
 var websiteMgmt = require('azure-mgmt-website');
 var adal = require('adal-node');
@@ -20,6 +21,7 @@ var AuthenticationContext = adal.AuthenticationContext;
 var xml = require('xml2js');
 var util = require('util');
 var session = require('express-session');
+var Client = require('ftp');
 
 app.use(cookieParser('a deep secret'));
 
@@ -66,23 +68,6 @@ var sampleParameters = {
   //password : 'thewizard1!'
   //password: 'thewizard!'
 };
-
-/*
-	Any api calls have to be made by whichever user is logged in has to use
-	that users subscription id
-*/
-
-/* 
-	When prompted to login, all api calls that require a subscription id
-	need to be associated with the user logging in
-
-	If login as jimmywoods1, use the subscriptionid for jimmywoods1
-	otherwise the token will be incorrect and api calls will fail
-*/
-// var jimmywoods1SubscriptionId = '3baf7cce-0610-43bc-b384-5105b8e71ab2';
-// var rnchelljimmywoods1outlookSubId = '9e65f69f-b5c2-48ce-9260-e0a6c51f9b23';
-
-// var subscriptionId = jimmywoods1SubscriptionId;
 
 /* ADAL Client */
 var resourceManagementClient;
@@ -294,6 +279,8 @@ app.get('/websites', function(req,res){
 		https://management.core.windows.net/
 	*/
 
+  var subscriptionId = req.session.user.subscriptionId;
+
 	var websiteMgmtClient = websiteMgmt.createWebSiteManagementClient(new common.TokenCloudCredentials({
 	    subscriptionId: subscriptionId,
 	    token: token
@@ -310,7 +297,48 @@ app.get('/websites', function(req,res){
   				if(err){
   					console.log(err);
   				} else {
-  					res.send(JSON.stringify({websites: results.webSites}));
+            for(var i=0;i<results.webSites.length; i++){
+              var website = results.webSites[i];
+              console.log(website);
+            }
+
+            var websiteName = results.webSites[0].name
+            /* Get FTP info */
+            websiteMgmtClient.webSites.getPublishProfile(webSpaceName, websiteName, function(err,result){
+              if(err){
+                console.log(err)
+              }else {
+                //console.log(result);
+                var publishProfiles = result.publishProfiles;
+                for(var i=0;i<publishProfiles.length;i++){
+                  var profile = publishProfiles[i];
+                  console.log('Profile: ');
+                  console.log(profile.publishMethod);
+                  if(profile.publishMethod === 'FTP'){
+                    console.log('*** Setting FTP Session Info ****');
+                    var url = profile.publishUrl;
+                    if(url.indexOf('ftp://') !== -1){
+                      url = url.slice(6);
+                      var stripPath = url.indexOf('/');
+                      if(stripPath !== -1){
+                        url = url.slice(0,stripPath);
+                      }
+                    }
+                    req.session.ftpInfo = {
+                      url: url,
+                      userName: profile.userName,
+                      password: profile.userPassword
+                    };
+
+                    console.log(req.session.ftpInfo);
+                    res.sendStatus(200);
+                  }
+                }
+
+              }
+            })
+
+  					//res.send(JSON.stringify({websites: results.webSites}));
   				}
   			})
       } else {
@@ -320,13 +348,171 @@ app.get('/websites', function(req,res){
 	});
 })
 
+app.post('/website/files', function(req,res){
+  console.log(req.session.ftpInfo);
+
+  if(!req.session.ftpInfo){
+    console.log('No FTP Info Set');
+    return res.sendStatus(400);
+  }
+
+  var localFileName = req.body.filename;
+  var remoteFileName = req.body.remoteFilename;
+
+  /* replace/update remote file */
+  c.put('./public/ftp/temp' + localFileName, '/site/wwwroot/' + remoteFilename, function(err) {
+    if (err){
+      console.log(err);
+    }
+    console.log("File uploaded successfully.");
+    c.end();
+  });
+
+  var ftpHost = req.session.ftpInfo.url,
+      ftpUsername = req.session.ftpInfo.userName,
+      ftpPassword = req.session.ftpInfo.password;
+  
+  c.connect({
+    host:ftpHost,
+    user: ftpUsername,
+    password: ftpPassword
+  });
+})
+
+app.get('/website/files/:filename', function(req,res){
+
+  if(!req.session.ftpInfo){
+    console.log('No FTP Info Set');
+    return res.sendStatus(400);
+  }
+
+  var filename = req.params.filename;
+
+  /* download remote file and save it locally */
+  c.get('/site/wwwroot/' + filename, function(err, stream) {
+    if (err) throw err;
+    stream.once('close', function() { c.end(); });
+    stream.pipe(fs.createWriteStream('./public/ftp/temp/local-' + filename));
+  });
+
+  var ftpHost = req.session.ftpInfo.url,
+      ftpUsername = req.session.ftpInfo.userName,
+      ftpPassword = req.session.ftpInfo.password;
+  
+  c.connect({
+    host:ftpHost,
+    user: ftpUsername,
+    password: ftpPassword
+  });
+})
+
+app.get('/website/:website/files', function(req,res){
+  console.log(req.session.ftpInfo);
+
+  if(!req.session.ftpInfo){
+    console.log('No FTP Info Set');
+    return res.sendStatus(400);
+  }
+
+  var c = new Client();
+
+  c.on('ready', function() {
+
+    /* list all files and directories under webroot */
+    c.list('/site/wwwroot',function(err, list) {
+      if (err) throw err;
+
+      var fileObjs = [];
+
+      for(var i=0; i < list.length; i++){
+        var fileObj = list[i];
+        console.log('Filename: ' + fileObj.name);
+        console.log('File type: ' + fileObj.type); // d for directory and - for file
+        console.log('File size: ' + fileObj.size);
+        fileObjs.push(fileObj);
+      }
+
+      console.dir(fileObjs);
+      res.send(JSON.stringify({files: fileObjs}));
+
+      c.end();
+    });
+  });
+
+  var ftpHost = req.session.ftpInfo.url,
+      ftpUsername = req.session.ftpInfo.userName,
+      ftpPassword = req.session.ftpInfo.password;
+  
+  c.connect({
+    host:ftpHost,
+    user: ftpUsername,
+    password: ftpPassword
+  });
+})
+
+app.get('/ftp', function(req,res){
+  console.log(req.session.ftpInfo);
+
+  if(!req.session.ftpInfo){
+    console.log('No FTP Info Set');
+    return res.sendStatus(400);
+  }
+
+  var c = new Client();
+
+  c.on('ready', function() {
+
+    /* list all files and directories under webroot */
+    c.list('/site/wwwroot',function(err, list) {
+      if (err) throw err;
+
+      var fileObjs = [];
+
+      for(var i=0; i < list.length; i++){
+        var fileObj = list[i];
+        console.log('Filename: ' + fileObj.name);
+        console.log('File type: ' + fileObj.type); // d for directory and - for file
+        console.log('File size: ' + fileObj.size);
+        fileObjs.push(fileObj);
+      }
+
+      //res.send(JSON.stringify({files: fileObjs}));
+      console.dir(fileObjs);
+
+      //c.end();
+    });
+
+    /* download remote file and save it locally */
+    c.get('/site/wwwroot/hostingstart.html', function(err, stream) {
+      if (err) throw err;
+      stream.once('close', function() { });//c.end(); });
+      stream.pipe(fs.createWriteStream('./local-copy-name.html'));
+    });
+
+    /* replace/update remote file */
+    c.put('./local-copy-name.html', '/site/wwwroot/remote-copy-name.html', function(err) {
+      if (err){
+        console.log(err);
+      }
+      
+      c.end();
+    });
+  });
+
+  var ftpHost = req.session.ftpInfo.url,
+      ftpUsername = req.session.ftpInfo.userName,
+      ftpPassword = req.session.ftpInfo.password;
+  
+  c.connect({
+    host:ftpHost,
+    user: ftpUsername,
+    password: ftpPassword
+  });
+
+})
+
 /* Get resources under a subscription */
 app.get('/subscriptions/:subscriptionId/resources', function(req,res){
-  
-  resourceManagementClient = resourceManagement.createResourceManagementClient(new common.TokenCloudCredentials({
-	    subscriptionId: subscriptionId,
-	    token: token
-	  }));
 
   resourceManagementClient.resources.list(function(err,data){
     if(err){
@@ -363,11 +549,7 @@ app.get('/resourcegroups/:resourceGroupName/resources/:resourceName', function(r
   
   //var resourceProviderNamespace = getProviderName(resourceType);
 
-  // var options = {
-  //   port: 3000,
-  //   path: '/providers/' + resourceType,
-  //   method: 'GET'
-  // };
+  
 
   // TODO: split resourceType into pieces
   http.get('http://localhost:3000/providers/' + resourceType, function(resp){
@@ -416,17 +598,12 @@ app.post('/subscriptions/:subscriptionId/resourcegroups', function(req,res){
   var resourceGroupName = req.body.appName;
   var subscriptionId = req.session.user.subscriptionId;
 
-  if(!resourceGroupName || resourceGroupName === ''){
+  if(!resourceGroupName || resourceGroupName === '' || !subscriptionId){
     return res.sendStatus(400);
   }
 
   var parameters = {
     location: 'westus'};
-
-  resourceManagementClient = resourceManagement.createResourceManagementClient(new common.TokenCloudCredentials({
-      subscriptionId: subscriptionId,
-      token: token
-    }));
 
   resourceManagementClient.resourceGroups.createOrUpdate(resourceGroupName,parameters,function(err,data){
     if(err){
@@ -475,11 +652,6 @@ app.get('/providers/:providerNamespace/:resourceTypeName', function(req,res){
   var namespace = req.params.providerNamespace;
   var resourceTypeName = req.params.resourceTypeName;
   var subscriptionId = req.session.user.subscriptionId;
-
-  resourceManagementClient = resourceManagement.createResourceManagementClient(new common.TokenCloudCredentials({
-      subscriptionId: subscriptionId,
-      token: token
-    }));
 
   resourceManagementClient.providers.get(namespace,function(err,data){
     if(err){
