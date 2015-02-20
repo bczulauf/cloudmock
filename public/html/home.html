@@ -1,73 +1,87 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div id="action-bar" class="row">
-	<div class="container">
-		<div class="column large-10">
-			<button id="add-app" class="add-button btn-lg btn-primary">
-				Add app
-			</button>
-			<button id="add-resource" class="add-button btn-lg btn-primary">
-				Add resource
-			</button>
-		</div>
-		<div class="column large-6 last-column">
-			<input id="search" placeholder="Search">
-		</div>
-	</div>
-</div>
-<div class="container">
-	<div class="browse-header row row-no">
-		<div class="column large-6">
-			Name
-		</div>
-		<div class="column large-2">
-			Type
-		</div>
-		<div class="column large-3">
-			Location
-		</div>
-		<div class="column large-5 last-column">
-			Resources
-		</div>
-	</div>
-	<div id="browse" class="row">
-		<ol id="browse-list">
-			<li id="create-folder">
-				<div class="column large-6">
-					<form id="create-app-form" action="/subscriptions/NEEDTOFINDTHIS/resourcegroups" method="POST">
-						<input type='text' required name='appName' id='app-name' class="inpt-full" placeholder='App Name'>
-					</form>
-				</div>
-				<div class="column large-3">
-					App
-				</div>
-				<div class="column large-2">
-					--
-				</div>
-				<div class="column large-5 last-column">
-					none
-				</div>
+<div id="frame" class="clearfix">
+	<div id="menu">
+		<ol>
+			<li>
+				Projects
 			</li>
-			{% if websites %}
-				{% for site in websites %}
-			<!-- {% for prop in site.siteProperties %}
-				{{prop}}
-			{% endfor %} -->
-			<!-- <li class="browse-folder clearfix">
-				<div class="column large-8">
-					{{site.name}}
-				</div>
-				<div class="column large-2">
-					{{site.state}}
+			<li>
+				Billing
+			</li>
+			<li>
+				Users
+			</li>
+		</ol>
+	</div>
+	<div id="content">
+		<div id="action-bar" class="row">
+			<div class="container">
+				<div class="column large-10">
+					<button id="add-app" class="add-button btn-lg btn-primary">
+						Add project
+					</button>
 				</div>
 				<div class="column large-6 last-column">
-					<a href="http://{{ site.hostNames[0] }}">{{site.hostNames[0]}}</a>
+					<input id="search" class="inpt-lg inpt-full" placeholder="Search">
 				</div>
-			</li> -->
-				{% endfor %}
-			{% endif %}
-		</ol>
+			</div>
+		</div>
+		<div class="container">
+			<div class="browse-header row row-no">
+				<div class="column large-6">
+					Name
+				</div>
+				<div class="column large-2">
+					Type
+				</div>
+				<div class="column large-3">
+					Location
+				</div>
+				<div class="column large-5 last-column">
+					Resources
+				</div>
+			</div>
+			<div id="browse" class="row">
+				<ol id="browse-list">
+					<li id="create-folder" class="clearfix">
+						<div class="column large-6">
+							<form id="create-app-form" action="/subscriptions/NEEDTOFINDTHIS/resourcegroups" method="POST">
+								<input type='text' required name='appName' id='app-name' class="inpt-full inpt-sm" placeholder='App Name'>
+							</form>
+						</div>
+						<div class="column large-3">
+							App
+						</div>
+						<div class="column large-2">
+							--
+						</div>
+						<div class="column large-5 last-column">
+							none
+						</div>
+					</li>
+					{% if websites %}
+						{% for site in websites %}
+					<!-- {% for prop in site.siteProperties %}
+						{{prop}}
+					{% endfor %} -->
+					<!-- <li class="browse-folder clearfix">
+						<div class="column large-8">
+							{{site.name}}
+						</div>
+						<div class="column large-2">
+							{{site.state}}
+						</div>
+						<div class="column large-6 last-column">
+							<a href="http://{{ site.hostNames[0] }}">{{site.hostNames[0]}}</a>
+						</div>
+					</li> -->
+						{% endfor %}
+					{% endif %}
+				</ol>
+			</div>
+		</div>
 	</div>
 </div>
 {% endblock %}

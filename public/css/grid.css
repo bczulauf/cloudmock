@@ -1,7 +1,7 @@
 /* --------------------------------------------------
 Container
 -------------------------------------------------- */
-.container { position: relative; width: 940px; margin: 0 auto; padding: 0; }
+.container { position: relative; width: 940px; margin: 0; padding: 0; }
  
 /* --------------------------------------------------
 Grid
@@ -9,6 +9,7 @@ Grid
 .row { margin: 0 0 20px 0px; }
 .column { float: left; margin: 0 20px 0 0; width: 100%; }
 .last-column {margin-right: 0;}
+.right-column {float: right;}
 
 .large-1 { width: 40px; }
 .large-2 { width: 100px; }

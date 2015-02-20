@@ -5,6 +5,41 @@ body {
 	font-family: "Roboto", sans-serif;
 }
 
+/* Header */
+#header {
+	background: #004881;
+	color: #fff;
+	line-height: 40px;
+	padding: 0px 20px;
+}
+
+#account {
+	text-align: right;
+}
+
+/* Frame */
+#frame {
+	min-width: 1040px;
+}
+
+#menu {
+	float: left;
+	width: 100px;
+	background-color: #eee;
+	height: 100%;
+}
+
+#content {
+	float: left;
+	width: calc(100% - 100px);
+}
+
+#action-bar {
+	line-height: 40px;
+	background-color: #f8f8f8;
+	padding: 0px 20px;
+}
+
 /* Buttons */
 button {
 	font-family: "Roboto", sans-serif;
@@ -13,12 +48,12 @@ button {
 
 button.add-button {
 	width: 120px;
-	margin: 10px 5px 10px 0px;
+	margin: 6px 6px 6px 0px;
 	float: left;
 }
 
 button.btn-lg {
-	height: 36px;
+	height: 28px;
 }
 
 button.btn-primary {
@@ -28,6 +63,7 @@ button.btn-primary {
 /* Inputs */
 input {
 	text-indent: 5px;
+	padding: 0;
 	border: none;
 }
 
@@ -36,7 +72,11 @@ input.inpt-full {
 }
 
 input.inpt-lg {
-	height: 36px;
+	height: 28px;
+}
+
+input.inpt-sm {
+	height: 24px;
 }
 
 input.inpt-form {
@@ -44,10 +84,9 @@ input.inpt-form {
 }
 
 input#search {
-	margin: 10px 0px;
-	height: 36px;
-	width: 100%;
-	padding: 0;
+	margin: 6px 0px;
+	border: 1px solid #ccc;
+	box-sizing: border-box;
 }
 
 input#folder-name {
@@ -65,7 +104,7 @@ ol {
 }
 
 li {
-	line-height: 40px;
+	line-height: 36px;
 }
 
 li.browse-item {
@@ -74,21 +113,6 @@ li.browse-item {
 
 li.browse-item div {
 	float: left;
-}
-
-#account {
-	background: orange;
-}
-
-#action-bar {
-	line-height: 56px;
-	background-color: pink;
-}
-
-.header {
-	background: red;
-	line-height: 40px;
-	width: 100%;
 }
 
 img.icon {
@@ -139,3 +163,5 @@ img.icon {
     padding: 20px;
     width: 220px;
 }
+
+/* Colors */
