@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<<<<<<< HEAD
 <div id="frame" class="clearfix">
 	<div id="menu">
 		<ol>
@@ -16,6 +17,7 @@
 		</ol>
 	</div>
 	<div id="content">
+	{% if hasSubscription %}
 		<div id="action-bar" class="row">
 			<div class="container">
 				<div class="column large-10">
@@ -84,4 +86,7 @@
 		</div>
 	</div>
 </div>
+{% else %}
+<div>User has no subscriptions!</div>
+{% endif %}
 {% endblock %}
