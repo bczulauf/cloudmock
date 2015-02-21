@@ -177,4 +177,13 @@ img.icon {
 	font-size: 12px;
 }
 
+.folder-svg {
+	float: left;
+}
+
+.folder-name {
+	float: left;
+	padding-left: 10px;
+}
+
 /* Colors */
