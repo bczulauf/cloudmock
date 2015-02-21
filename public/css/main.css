@@ -19,26 +19,29 @@ body {
 
 /* Frame */
 #frame {
-	min-width: 1060px;
+	min-width: 1120px;
 	display: flex;
+	height: 100%;
 }
 
 #menu {
-	width: 100px;
+	width: 160px;
 	background-color: #eee;
-	height: calc(100% - 40px);
 }
 
 #content {
-	width: calc(100% - 100px);
-	overflow-y: auto;
-	height: calc(100% - 40px);
+	width: calc(100% - 160px);
 }
 
 #action-bar {
 	line-height: 40px;
 	background-color: #f8f8f8;
 	padding: 0px 20px;
+}
+
+form {
+	margin: 0;
+	padding: 0;
 }
 
 /* Buttons */
@@ -65,6 +68,7 @@ button.btn-primary {
 input {
 	text-indent: 5px;
 	padding: 0;
+	margin: 0;
 	border: none;
 }
 
@@ -81,7 +85,7 @@ input.inpt-sm {
 }
 
 input.inpt-form {
-	margin-bottom: 5px;
+	margin-bottom: 6px;
 }
 
 input#search {
@@ -90,11 +94,11 @@ input#search {
 	box-sizing: border-box;
 }
 
-input#folder-name {
-	margin-top: 8px;
-	height: 24px;
-	width: 304px;
-	margin-left: 8px;
+input#inpt-name {
+	width: calc(100% - 6px);
+	border: 1px solid #ccc;
+	box-sizing: border-box;
+	margin: 6px 0px 6px 6px;
 }
 
 /* Lists */
@@ -106,10 +110,12 @@ ol {
 
 li {
 	line-height: 36px;
+	height: 36px;
 }
 
 li.browse-item {
 	list-style: none;
+	cursor: pointer;
 }
 
 li.browse-item div {
@@ -126,8 +132,9 @@ img.icon {
 
 #create-folder {
 	display: none;
-	background: blue;
-	height: 40px;
+	background: #e6edf2;
+	height: 36px;
+	line-height: 36px;
 }
 
 #browse-wrapper {
@@ -178,6 +185,7 @@ img.icon {
 }
 
 .folder-svg {
+	margin-top: 4px;
 	float: left;
 }
 

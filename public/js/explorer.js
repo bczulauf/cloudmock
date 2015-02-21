@@ -7,7 +7,7 @@
         event.preventDefault();
 
         var form = $(this),
-            appName = form.find("#app-name").val(),
+            appName = form.find("#inpt-name").val(),
             url = form.attr("action");
 
         var postPromise = $.post( url, { appName: appName } );
