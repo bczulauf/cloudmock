@@ -186,4 +186,16 @@ img.icon {
 	padding-left: 10px;
 }
 
+#file-loading {
+	display:none;
+}
+
+#file-edit {
+	display:none;
+}
+
+#file-data{
+	width:800px;
+	height:500px;
+}
 /* Colors */

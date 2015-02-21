@@ -1,6 +1,19 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<div class="row">
+<div class="column large-10">
+		<div id="file-loading">Loading file for edit...</div>
+		<div id="file-edit">
+			<h2>Edit Area</h2>
+			<textarea id='file-data'>
+			</textarea>
+			<button id="update-file" class="add-button btn-lg btn-primary">
+				Submit
+			</button>
+		</div>
+	</div>
+</div>
 <div id="frame" class="clearfix">
 	<div id="menu">
 		<div id="menu-wrapper">
@@ -86,8 +99,4 @@
 		</div>
 	</div>
 </div>
-{% if hasSubscription %}
-{% else %}
-<div>User has no subscriptions!</div>
-{% endif %}
 {% endblock %}

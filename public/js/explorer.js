@@ -23,7 +23,7 @@
             var provisioningState = appData.provisioningState;
 
             var item = $(
-                "<li class='browse-folder clearfix'>" +
+                "<li id='" + appName + "' class='browse-folder clearfix'>" +
                     "<div class='column large-6'>" + appName + "</div>" + 
                     "<div class='column large-2'>app</div>" +
                     "<div class='column large-3'>" + location + "</div>" +
@@ -41,14 +41,45 @@
         // analytics, code, dbs, users
         // if it is a code folder it will need to get its code.
         var folder = $(this);
+        var name = $(this).attr('id');
+        console.log(name);
+        if(name === 'Default-Web-WestUS'){
+            console.log("FOUND APP");
+            console.log("HAS WEBSITES");
+
+            $('#frame').hide();
+            $('#file-loading').show();
+            // should probably load resources when loading folders
+            /* get file to edit */
+            /* TODO: need to get website name and filename */
+            $.get('/websites/cloudmocktest1/files/hostingstart.html', function(data){
+                console.log(data);
+                $('#file-loading').hide();
+                $('#file-edit').show();
+                $('#file-data').val(data);
+            })
+        }
 
         console.log(folder.data());
     });
 
+    /* update local file and FTP to website */
+    $('#update-file').on('click', function(){
+        console.log("UPDATE FILE CLICKED");
+
+        /* TODO: need to get website name and filename */
+        $.post('/websites/cloudmocktest1/files/file',
+            {filename: 'hostingstart.html',fileData: $('#file-data').val()},
+            function(d){
+                console.log(d);
+            }
+        )
+    })
+
     $("#add-app").on("click", function() {
         $("#create-folder").show();
     });
-
+    
     // Gets me all the websites that I am a member of.
     // $.get("/websites", function(data) {
     //     var websites = data.websites;
