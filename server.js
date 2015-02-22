@@ -374,43 +374,43 @@ app.get('/websites', function(req,res){
               console.log(website);
             }
 
-            var websiteName = results.webSites[0].name
-            /* Get FTP info */
-            websiteMgmtClient.webSites.getPublishProfile(webSpaceName, websiteName, function(err,result){
-              if(err){
-                console.log(err)
-              }else {
-                //console.log(result);
-                var publishProfiles = result.publishProfiles;
-                for(var i=0;i<publishProfiles.length;i++){
-                  var profile = publishProfiles[i];
-                  console.log('Profile: ');
-                  console.log(profile.publishMethod);
-                  if(profile.publishMethod === 'FTP'){
-                    console.log('*** Setting FTP Session Info ****');
-                    var url = profile.publishUrl;
-                    if(url.indexOf('ftp://') !== -1){
-                      url = url.slice(6);
-                      var stripPath = url.indexOf('/');
-                      if(stripPath !== -1){
-                        url = url.slice(0,stripPath);
-                      }
-                    }
-                    req.session.ftpInfo = {
-                      url: url,
-                      userName: profile.userName,
-                      password: profile.userPassword
-                    };
+            // var websiteName = results.webSites[0].name
+            // /* Get FTP info */
+            // websiteMgmtClient.webSites.getPublishProfile(webSpaceName, websiteName, function(err,result){
+            //   if(err){
+            //     console.log(err)
+            //   }else {
+            //     //console.log(result);
+            //     var publishProfiles = result.publishProfiles;
+            //     for(var i=0;i<publishProfiles.length;i++){
+            //       var profile = publishProfiles[i];
+            //       console.log('Profile: ');
+            //       console.log(profile.publishMethod);
+            //       if(profile.publishMethod === 'FTP'){
+            //         console.log('*** Setting FTP Session Info ****');
+            //         var url = profile.publishUrl;
+            //         if(url.indexOf('ftp://') !== -1){
+            //           url = url.slice(6);
+            //           var stripPath = url.indexOf('/');
+            //           if(stripPath !== -1){
+            //             url = url.slice(0,stripPath);
+            //           }
+            //         }
+            //         req.session.ftpInfo = {
+            //           url: url,
+            //           userName: profile.userName,
+            //           password: profile.userPassword
+            //         };
 
-                    console.log(req.session.ftpInfo);
-                    res.sendStatus(200);
-                  }
-                }
+            //         console.log(req.session.ftpInfo);
+            //         res.sendStatus(200);
+            //       }
+            //     }
 
-              }
-            })
+            //   }
+            // })
 
-  					//res.send(JSON.stringify({websites: results.webSites}));
+  					res.send(JSON.stringify({websites: results.webSites}));
   				}
   			})
       } else {
