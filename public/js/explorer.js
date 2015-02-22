@@ -1,7 +1,8 @@
-(function ($, underscore) {
+(function ($, underscore, Popup) {
     "use strict";
 
-    var browseList = $("#browse-list");
+    var browseList = $("#browse-list"),
+        createForm = $("#create-folder");
 
     $("#create-app-form").submit(function(event) {
         event.preventDefault();
@@ -23,7 +24,7 @@
             var provisioningState = appData.provisioningState;
 
             var item = $(
-                "<li id='" + appName + "' class='browse-folder clearfix'>" +
+                "<li id='" + appName + "' class='tile clearfix'>" +
                     "<div class='column large-6'>" + appName + "</div>" + 
                     "<div class='column large-2'>app</div>" +
                     "<div class='column large-3'>" + location + "</div>" +
@@ -35,7 +36,7 @@
         });
     });
 
-    $("#browse").on("click", ".browse-folder", function() {
+    $("#browse").on("click", ".tile", function() {
         // check type to know where to get children from.
         // if it is a website for instance it will have 4 children
         // analytics, code, dbs, users
@@ -76,8 +77,17 @@
         )
     })
 
-    $("#add-app").on("click", function() {
-        $("#create-folder").show();
+    var projectForm = $(
+            "<div>" +
+                "<form>" +
+                    "<input class='inpt-lg' type='text' placeholder='Project name'>" +
+                    "<button type='submit'>" +
+                "</form>" +
+            "</div>"
+        );
+
+    $("#add-app").on("click", function(event) {
+        Popup.showPopup(projectForm);
     });
     
     // Gets me all the websites that I am a member of.
@@ -90,4 +100,4 @@
     //     });
     // });
 
-}(window.jQuery, window.underscore))
+}(window.jQuery, window.underscore, Popup))

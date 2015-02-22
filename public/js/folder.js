@@ -71,12 +71,11 @@
             "<path d='M22,8.1V5.4C22,4.6,21.6,4,20.8,4H14c-0.8,0-1,0-1.7,1.4L11,8.1L22,8.1z'/><path d='M20.7,7H3.2C2.4,7,2,7.6,2,8.4v11.2C2,20.4,2.4,21,3.2,21h17.5c0.8,0,1.2-0.6,1.2-1.4V8.4C21.9,7.6,21.5,7,20.7,7z M20,19H4V9h16V19z'/></svg>";
 
     	var item = $(
-	    		"<li id='" + name +  "' class='browse-folder clearfix'>" +
-	    			"<div class='column large-6 clearfix'><div class='folder-svg'>" + folderSVG + "</div><div class='folder-name'>" + name + "</div></div>" + 
-	    			"<div class='column large-2'>" + type + "</div>" +
-                    "<div class='column large-3'>" + location + "</div>" +
-                    "<div class='column large-5 last-column'>none</div>" +
-	    		"</li>"
+	    		"<div id='" + name + "' class='column large-4 tile'>" +
+                    "<div class='tile-inner'>" +
+    	    			"<div class='folder-name'>" + name + "</div>" + 
+                    "</div>" +
+	    		"</div>"
     		);
 
     	browseList.append(item);

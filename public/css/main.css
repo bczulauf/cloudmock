@@ -3,13 +3,22 @@ body {
 	margin: 0;
 	padding: 0;
 	font-family: "Roboto", sans-serif;
+	background-color: #0061AF;
+}
+
+h2 {
+	font-size: 18px;
+	line-height: 18px;
+	font-weight: normal;
+	padding: 0;
+	margin: 0;
 }
 
 /* Header */
 #header {
-	background: #004881;
+	background: #004C88;
 	color: #fff;
-	line-height: 40px;
+	line-height: 36px;
 	padding: 0px 20px;
 }
 
@@ -26,16 +35,17 @@ body {
 
 #menu {
 	width: 160px;
-	background-color: #eee;
+	background-color: #00569B;
+	color: #fff;
 }
 
 #content {
-	width: calc(100% - 160px);
+	background-color: #0061AF;
 }
 
 #action-bar {
 	line-height: 40px;
-	background-color: #f8f8f8;
+	background-color: #0061AF;
 	padding: 0px 20px;
 }
 
@@ -90,8 +100,12 @@ input.inpt-form {
 
 input#search {
 	margin: 6px 0px;
-	border: 1px solid #ccc;
-	box-sizing: border-box;
+	background-color: #004174;
+	color: #CCE2F3;
+}
+
+::-webkit-input-placeholder {
+	color: #CCE2F3;
 }
 
 input#inpt-name {
@@ -109,17 +123,10 @@ ol {
 }
 
 li {
+}
+
+li.menu-option {
 	line-height: 36px;
-	height: 36px;
-}
-
-li.browse-item {
-	list-style: none;
-	cursor: pointer;
-}
-
-li.browse-item div {
-	float: left;
 }
 
 img.icon {
@@ -152,14 +159,14 @@ img.icon {
 	left: 0;
 	bottom: 0;
 	right: 0;
-	background: rgba(0,0,0,.5);
+	background: rgba(255,255,255,.4);
 	align-items: center;
     justify-content: center;
     display: none;
 }
 
-#popup-container {
-	background-color: #fff;
+#popup-inner {
+	background-color: #006cc2;
 	padding: 20px;
 }
 
@@ -177,21 +184,15 @@ img.icon {
 }
 
 #menu-wrapper {
-	padding: 40px 20px 0px 20px;
+	padding-top: 40px;
+}
+
+.menu-option {
+	padding: 0px 20px;
 }
 
 #account {
 	font-size: 12px;
-}
-
-.folder-svg {
-	margin-top: 4px;
-	float: left;
-}
-
-.folder-name {
-	float: left;
-	padding-left: 10px;
 }
 
 #file-loading {
@@ -206,4 +207,22 @@ img.icon {
 	width:800px;
 	height:500px;
 }
-/* Colors */
+
+.selected-menu {
+	background-color: #0061AF;
+}
+
+.tile {
+	cursor: pointer;
+	background-color: #006cc2;
+	margin-bottom: 20px;
+	color: #fff;
+}
+
+.tile:hover {
+	box-shadow: 0px 1px 3px rgba(0,0,0,.4);
+}
+
+.tile-inner {
+	padding: 10px;
+}
