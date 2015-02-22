@@ -4,7 +4,7 @@
     var browseList = $("#browse-list"),
         createForm = $("#create-folder");
 
-    $("#create-app-form").submit(function(event) {
+    $("#create-project-form").submit(function(event) {
         event.preventDefault();
 
         var form = $(this),
@@ -79,9 +79,10 @@
 
     var projectForm = $(
             "<div>" +
-                "<form>" +
-                    "<input class='inpt-lg' type='text' placeholder='Project name'>" +
-                    "<button type='submit'>" +
+                "<form id='create-project-form' action='/subscriptions/NEEDTOFINDTHIS/resourcegroups' method='POST'>" +
+                    "<div class='page-label'>Add Project</div>" +
+                    "<input id='inpt-name' class='inpt-lg inpt-full' type='text' placeholder='Project name'>" +
+                    "<button type='submit' class='btn-lg btn-primary'>Add</button>" +
                 "</form>" +
             "</div>"
         );

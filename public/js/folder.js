@@ -65,18 +65,30 @@
     }
 
     // Appends the folder name to the DOM.
-    var appendFolder = function(name, type, location) {
+    var appendFolder = function(name, className) {
         var folderSVG = 
             "<svg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' height='24px' width='24px' viewBox='0 0 24 24' enable-background='new 0 0 24 24' xml:space='preserve'>" +
             "<path d='M22,8.1V5.4C22,4.6,21.6,4,20.8,4H14c-0.8,0-1,0-1.7,1.4L11,8.1L22,8.1z'/><path d='M20.7,7H3.2C2.4,7,2,7.6,2,8.4v11.2C2,20.4,2.4,21,3.2,21h17.5c0.8,0,1.2-0.6,1.2-1.4V8.4C21.9,7.6,21.5,7,20.7,7z M20,19H4V9h16V19z'/></svg>";
 
-    	var item = $(
-	    		"<div id='" + name + "' class='column large-4 tile'>" +
-                    "<div class='tile-inner'>" +
-    	    			"<div class='folder-name'>" + name + "</div>" + 
-                    "</div>" +
-	    		"</div>"
-    		);
+        var item;
+
+        if(className) {
+        	item = $(
+    	    		"<div id='" + name + "' class='column large-4 tile " + className + "'>" +
+                        "<div class='tile-inner'>" +
+        	    			"<div class='folder-name'>" + name + "</div>" + 
+                        "</div>" +
+    	    		"</div>"
+        		);
+        } else {
+            item = $(
+                    "<div id='" + name + "' class='column large-4 tile'>" +
+                        "<div class='tile-inner'>" +
+                            "<div class='folder-name'>" + name + "</div>" + 
+                        "</div>" +
+                    "</div>"
+                );
+        }
 
     	browseList.append(item);
     }
@@ -84,14 +96,22 @@
     var getResourceGroups = function() {
         $.get("/subscriptions/:subscriptionId/resourcegroups", function(groups) {
             // Gets resource groups for user.
-            var apps = $.parseJSON(groups).resourceGroups;
+            var projects = $.parseJSON(groups).resourceGroups,
+                count = 0;
 
-            _.each(apps, function(app) {
+            _.each(projects, function(project) {
+                count++;
+
                 // Adds directories to root folder.
-                root.addChild(app.name, "app", app.location);
+                root.addChild(project.name, "project", project.location);
                 
                 // Appends directories to dom.
-                appendFolder(app.name, "app", app.location);
+                if(count === 4) {
+                    appendFolder(project.name, "last-column");
+                    count = 0;
+                } else {
+                    appendFolder(project.name);
+                }
             });
         })
     }
