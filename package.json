@@ -31,6 +31,7 @@
     "xml2js": "~0.4.5",
     "azure-mgmt": "~0.9.15",
     "express-session": "~1.10.3",
-    "ftp": "~0.3.8"
+    "ftp": "~0.3.8",
+    "jwt-simple": "~0.2.0"
   }
 }

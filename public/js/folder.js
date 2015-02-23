@@ -94,9 +94,10 @@
     }
 
     var getResourceGroups = function() {
-        $.get("/subscriptions/:subscriptionId/resourcegroups", function(groups) {
+        //$.get("/subscriptions/:subscriptionId/resourcegroups", function(groups) {
+        $.get('/resourcegroups', function(groups){
             // Gets resource groups for user.
-            var projects = $.parseJSON(groups).resourceGroups,
+            var projects = $.parseJSON(groups),
                 count = 0;
 
             _.each(projects, function(project) {
