@@ -21,7 +21,7 @@ var Breadcrumb = (function($, underscore) {
     // Appends crumb to DOM.
     var _appendCrumb = function(name) {
         var crumb = $(
-                "<span>" + name + "</span>"
+                "<span><a>" + name + "<a></span>"
             );
 
         breadcrumb.append(crumb);

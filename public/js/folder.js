@@ -131,13 +131,22 @@
     // Listens for click on breadcrumb.
     breadcrumb.on("click", "span", function(e) {
         var clickedCrumb = $(e.target).text(),
-            clickedCrumbObj = root.getFolder(clickedCrumb);
+            clickedCrumbObj = root.getFolder(clickedCrumb),
+            count = 0;;
 
         // Clears browse list.
         browseList.html("");
 
         _.each(clickedCrumbObj.children, function(folder) {
-            appendFolder(folder.name, folder.type, folder.location);
+            count++;
+            
+            // Appends directories to dom.
+            if(count === 4) {
+                appendFolder(folder.name, "last-column");
+                count = 0;
+            } else {
+                appendFolder(folder.name);
+            }
         });
     });
 

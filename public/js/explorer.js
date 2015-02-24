@@ -37,13 +37,9 @@
     });
 
     $("#browse").on("click", ".tile", function() {
-        // check type to know where to get children from.
-        // if it is a website for instance it will have 4 children
-        // analytics, code, dbs, users
-        // if it is a code folder it will need to get its code.
         var folder = $(this);
         var name = $(this).attr('id');
-        console.log(name);
+
         if(name === 'Default-Web-WestUS'){
             console.log("FOUND APP");
             console.log("HAS WEBSITES");
@@ -82,7 +78,7 @@
                 "<form id='create-project-form' action='/subscriptions/NEEDTOFINDTHIS/resourcegroups' method='POST'>" +
                     "<div class='page-label'>Add Project</div>" +
                     "<input id='inpt-name' class='inpt-lg inpt-full' type='text' placeholder='Project name'>" +
-                    "<button type='submit' class='btn-lg btn-primary'>Add</button>" +
+                    "<button type='submit' class='btn-lg btn-primary btn-w-med'>Add</button>" +
                 "</form>" +
             "</div>"
         );
